@@ -86,7 +86,7 @@
     .card { display: flex; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 10px; overflow: hidden; margin-bottom: 0.8rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s; position: relative; }
     .card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .card.selected { border: 2px solid #1a73e8; background-color: var(--bg-card-select); }
-    .card.visited::after { content: "✔ 방문"; position: absolute; right: 8px; bottom: 6px; font-size: 0.68rem; font-weight: bold; color: #fff; background: var(--ok); padding: 1px 7px; border-radius: 10px; }
+    .card.visited::after { content: attr(data-vtag); position: absolute; right: 8px; bottom: 6px; font-size: 0.68rem; font-weight: bold; color: #fff; background: var(--ok); padding: 1px 7px; border-radius: 10px; }
 
     .thumbnail { width: 95px; height: 95px; object-fit: cover; flex-shrink: 0; background-color: #333; }
     .img-fail { visibility: hidden; }
@@ -242,41 +242,42 @@
 <body>
 
   <header>
-    <h1>명장면 속 전 세계 성지 122선</h1>
-    <div class="progress" title="방문한 성지 수">
+    <h1 data-i18n="app.title"></h1>
+    <div class="progress" data-i18n-attr="title:progress.title">
       <div class="progress-bar"><span id="progressFill"></span></div>
       <span id="progressText">0 / 0</span>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="작품, 장소, 국가 검색... ( / )">
+    <input type="text" id="searchInput" class="search-input" data-i18n-attr="placeholder:search.placeholder">
     <div class="controls">
-      <button id="diaryBtn" class="btn-control">내 일기</button>
-      <button id="backupBtn" class="btn-control">백업<span class="dot" id="backupDot"></span></button>
-      <button id="darkToggleBtn" class="btn-control">다크 모드</button>
+      <button id="diaryBtn" class="btn-control"></button>
+      <button id="backupBtn" class="btn-control"><span data-i18n="backup.btn"></span><span class="dot" id="backupDot"></span></button>
+      <button id="darkToggleBtn" class="btn-control"></button>
+      <button id="langBtn" class="btn-control" data-i18n-attr="aria-label:lang.aria"></button>
     </div>
   </header>
 
   <div class="filter-bar" id="filterBar">
     <div class="chip-group" data-group="status">
-      <button class="chip active" data-value="all">전체</button>
-      <button class="chip" data-value="fav">★ 찜</button>
-      <button class="chip" data-value="visited">✔ 방문</button>
-      <button class="chip" data-value="todo">미방문</button>
+      <button class="chip active" data-value="all" data-i18n="filter.all"></button>
+      <button class="chip" data-value="fav" data-i18n="filter.fav"></button>
+      <button class="chip" data-value="visited" data-i18n="filter.visited"></button>
+      <button class="chip" data-value="todo" data-i18n="filter.todo"></button>
     </div>
     <span class="chip-sep"></span>
     <div class="chip-group" data-group="cat">
-      <button class="chip active" data-value="all">모든 종류</button>
-      <button class="chip" data-value="애니메이션">애니</button>
-      <button class="chip" data-value="영화">영화</button>
+      <button class="chip active" data-value="all" data-i18n="filter.catAll"></button>
+      <button class="chip" data-value="애니메이션" data-i18n="filter.catAnime"></button>
+      <button class="chip" data-value="영화" data-i18n="filter.catFilm"></button>
     </div>
     <span class="chip-sep"></span>
-    <select id="countrySelect" aria-label="국가 선택"><option value="all">전체 국가</option></select>
-    <select id="sortSelect" aria-label="정렬">
-      <option value="id">번호순</option>
-      <option value="name">가나다순</option>
-      <option value="country">국가별</option>
-      <option value="fav">찜 우선</option>
-      <option value="todo">미방문 우선</option>
-      <option value="near">내 위치에서 가까운 순</option>
+    <select id="countrySelect" data-i18n-attr="aria-label:filter.countryAria"></select>
+    <select id="sortSelect" data-i18n-attr="aria-label:sort.aria">
+      <option value="id" data-i18n="sort.id"></option>
+      <option value="name" data-i18n="sort.name"></option>
+      <option value="country" data-i18n="sort.country"></option>
+      <option value="fav" data-i18n="sort.fav"></option>
+      <option value="todo" data-i18n="sort.todo"></option>
+      <option value="near" data-i18n="sort.near"></option>
     </select>
   </div>
 
@@ -284,89 +285,91 @@
     <div class="list-section" id="listSection"></div>
     <div class="right-section">
       <div class="map-container" id="mapContainer">
-        <iframe id="mapFrame" title="장소 지도"></iframe>
-        <div class="map-offline" id="mapOffline">인터넷에 연결되어 있지 않아<br>지도를 표시할 수 없어요.<br>연결되면 자동으로 나타납니다.</div>
-        <a class="map-open" id="mapOpenLink" target="_blank" rel="noopener">구글지도에서 열기 ↗</a>
+        <iframe id="mapFrame" data-i18n-attr="title:map.title"></iframe>
+        <div class="map-offline" id="mapOffline" data-i18n-html="map.offline"></div>
+        <a class="map-open" id="mapOpenLink" target="_blank" rel="noopener" data-i18n="map.open"></a>
       </div>
       <div class="detail-section" id="detailSection"></div>
     </div>
   </div>
 
   <nav class="bottom-nav" id="bottomNav">
-    <button data-view="list" class="active">목록</button>
-    <button data-view="detail">지도 · 상세</button>
+    <button data-view="list" class="active" data-i18n="nav.list"></button>
+    <button data-view="detail" data-i18n="nav.detail"></button>
   </nav>
 
   <div class="modal" id="backupModal">
-    <div class="sheet" role="dialog" aria-label="백업과 복원">
-      <h2>기록 백업 / 복원 <button class="btn-close" id="backupClose" aria-label="닫기">×</button></h2>
-      <p>찜, 방문 기록, 일기와 사진은 이 브라우저 안에만 저장됩니다. 브라우저 데이터를 지우거나 기기를 바꾸면 사라지므로 백업 파일을 따로 보관하세요.</p>
+    <div class="sheet" role="dialog" data-i18n-attr="aria-label:backup.aria">
+      <h2><span data-i18n="backup.title"></span> <button class="btn-close" id="backupClose" data-i18n-attr="aria-label:common.close">×</button></h2>
+      <p data-i18n="backup.intro"></p>
       <div class="stat" id="backupStat"></div>
 
-      <h3>1. 백업 파일 저장</h3>
-      <p>폰에서는 공유 창이 열립니다. 구글 드라이브, 카카오톡 '나에게', 이메일 등에 저장해 두세요.</p>
-      <label class="check-row"><input type="checkbox" id="withPhotos" checked> 일기 사진 포함 <span id="photoSize" style="color:var(--text-sub)"></span></label>
-      <div class="btn-row"><button class="act primary" id="exportBtn">백업 파일 저장</button></div>
+      <h3 data-i18n="backup.saveTitle"></h3>
+      <p data-i18n="backup.saveDesc"></p>
+      <label class="check-row"><input type="checkbox" id="withPhotos" checked> <span data-i18n="backup.withPhotos"></span> <span id="photoSize" style="color:var(--text-sub)"></span></label>
+      <div class="btn-row"><button class="act primary" id="exportBtn" data-i18n="backup.saveBtn"></button></div>
 
-      <h3>2. 백업 파일 불러오기</h3>
-      <p>현재 기록에 합쳐집니다. 기존 기록은 지워지지 않습니다.</p>
-      <div class="btn-row"><button class="act" id="importBtn">백업 파일 선택</button></div>
+      <h3 data-i18n="backup.loadTitle"></h3>
+      <p data-i18n="backup.loadDesc"></p>
+      <div class="btn-row"><button class="act" id="importBtn" data-i18n="backup.loadBtn"></button></div>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
 
-      <h3>여행 계획용 (찜한 성지)</h3>
-      <p>국가 필터로 범위를 좁힌 뒤 쓰면 편해요. 루트는 현재 목록의 찜한 곳을 최대 11곳까지 구글지도 길찾기로 엽니다.</p>
+      <h3 data-i18n="trip.title"></h3>
+      <p data-i18n="trip.desc"></p>
       <div class="btn-row">
-        <button class="act primary" id="routeBtn">구글지도 루트 열기</button>
-        <button class="act" id="copyFavBtn">텍스트 복사</button>
-        <button class="act" id="csvFavBtn">CSV 저장</button>
+        <button class="act primary" id="routeBtn" data-i18n="trip.route"></button>
+        <button class="act" id="copyFavBtn" data-i18n="trip.copy"></button>
+        <button class="act" id="csvFavBtn" data-i18n="trip.csv"></button>
       </div>
-      <div class="btn-row"><button class="act" id="aboutBtn">앱 정보 · 사진 출처</button></div>
+      <div class="btn-row"><button class="act" id="aboutBtn" data-i18n="about.btn"></button></div>
     </div>
   </div>
 
   <div class="modal" id="diaryModal">
-    <div class="sheet" role="dialog" aria-label="내 일기">
-      <h2>내 일기 <button class="btn-close" id="diaryClose" aria-label="닫기">×</button></h2>
+    <div class="sheet" role="dialog" data-i18n-attr="aria-label:diary.title">
+      <h2><span data-i18n="diary.title"></span> <button class="btn-close" id="diaryClose" data-i18n-attr="aria-label:common.close">×</button></h2>
       <div id="diaryAllList"></div>
     </div>
   </div>
 
   <div id="lightbox">
     <img id="lbImg" alt="">
-    <button class="lb-btn" id="lbClose" aria-label="닫기">×</button>
-    <button class="lb-btn" id="lbPrev" aria-label="이전">‹</button>
-    <button class="lb-btn" id="lbNext" aria-label="다음">›</button>
+    <button class="lb-btn" id="lbClose" data-i18n-attr="aria-label:common.close">×</button>
+    <button class="lb-btn" id="lbPrev" data-i18n-attr="aria-label:common.prev">‹</button>
+    <button class="lb-btn" id="lbNext" data-i18n-attr="aria-label:common.next">›</button>
     <div id="lbCount"></div>
   </div>
   <input type="file" id="photoFile" accept="image/*" multiple hidden>
 
   <div class="modal" id="stampModal">
-    <div class="sheet" role="dialog" aria-label="국가별 도장판">
-      <h2>국가별 도장판 <button class="btn-close" id="stampClose" aria-label="닫기">×</button></h2>
+    <div class="sheet" role="dialog" data-i18n-attr="aria-label:stamp.title">
+      <h2><span data-i18n="stamp.title"></span> <button class="btn-close" id="stampClose" data-i18n-attr="aria-label:common.close">×</button></h2>
       <p id="stampSummary"></p>
       <div class="stamp-grid" id="stampGrid"></div>
     </div>
   </div>
 
   <div class="modal" id="aboutModal">
-    <div class="sheet" role="dialog" aria-label="앱 정보">
-      <h2>앱 정보 <button class="btn-close" id="aboutClose" aria-label="닫기">×</button></h2>
-      <p>영화와 애니메이션 속 장면의 배경이 된 곳, 촬영지, 모티브로 알려진 곳 122곳을 모아 찜하고 방문 기록과 일기를 남기는 앱입니다.</p>
-      <h3>사진 출처</h3>
-      <p>장소 사진은 위키미디어 커먼즈 등에 공개된 이미지입니다. 각 사진의 작성자와 라이선스는 상세 화면의 사진 아래에 표시되며, 눌러서 원본 페이지를 볼 수 있습니다. 작품명, 상표, 장면의 권리는 각 권리자에게 있습니다.</p>
-      <h3>작품 정보</h3>
-      <p>작품과 장소의 연결은 공개된 정보에 근거하며, "알려져 있다"고 표시한 곳은 공식 확인이 아닌 팬들 사이의 통설일 수 있습니다. 실제 방문 전에 운영 여부와 출입 규칙을 확인하세요.</p>
-      <h3>지도와 위치</h3>
-      <p>지도는 구글 지도를 사용합니다. 현재 위치는 '가까운 순' 정렬에만 쓰이며 기기 밖으로 전송하거나 저장하지 않습니다.</p>
-      <div class="btn-row"><a class="act" href="privacy-policy.html" target="_blank" rel="noopener">개인정보처리방침</a></div>
+    <div class="sheet" role="dialog" data-i18n-attr="aria-label:about.title">
+      <h2><span data-i18n="about.title"></span> <button class="btn-close" id="aboutClose" data-i18n-attr="aria-label:common.close">×</button></h2>
+      <p data-i18n="about.intro"></p>
+      <h3 data-i18n="about.photoTitle"></h3>
+      <p data-i18n="about.photoDesc"></p>
+      <h3 data-i18n="about.infoTitle"></h3>
+      <p data-i18n="about.infoDesc"></p>
+      <h3 data-i18n="about.mapTitle"></h3>
+      <p data-i18n="about.mapDesc"></p>
+      <div class="btn-row"><a class="act" href="privacy-policy.html" target="_blank" rel="noopener" data-i18n="about.privacy"></a></div>
     </div>
   </div>
 
-  <div id="updateBar">새 버전이 준비됐어요 <button id="updateBtn">새로고침</button></div>
+  <div id="updateBar"><span data-i18n="update.msg"></span> <button id="updateBtn" data-i18n="update.btn"></button></div>
 
   <div id="toast"></div>
 
   <script src="spots.js"></script>
+  <script src="spots.en.js"></script>
+  <script src="i18n.js"></script>
   <script>
     const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#3a4a63"/><path d="M50 80 35 52a17 17 0 1 1 30 0z" fill="#fff" opacity=".85"/><circle cx="50" cy="40" r="7" fill="#3a4a63"/></svg>');
     function handleImgError(image) {
@@ -387,7 +390,7 @@
       set(k, v) {
         try { localStorage.setItem(k, JSON.stringify(v)); return true; }
         catch (e) {
-          if (!storageWarned) { storageWarned = true; toast('이 브라우저에서는 기록을 저장할 수 없어요. 백업 파일을 꼭 저장하세요.'); }
+          if (!storageWarned) { storageWarned = true; toast(t('storage.fail')); }
           return false;
         }
       }
@@ -418,10 +421,48 @@
       clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
     }
 
+    // ---------- 다국어 (i18n) ----------
+    const LANGS = ['ko', 'en'];
+    const SPOTS_EN = window.SPOTS_EN || {}, COUNTRY_EN = window.COUNTRY_EN || {}, I18N = window.I18N || {};
+    let lang = (() => {
+      const saved = store.get('spotLang', null);
+      if (LANGS.includes(saved)) return saved;
+      return (navigator.language || 'ko').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+    })();
+    function t(key, vars) {
+      let s = (I18N[lang] && I18N[lang][key] !== undefined) ? I18N[lang][key] : (I18N.ko && I18N.ko[key] !== undefined ? I18N.ko[key] : key);
+      if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+      return s;
+    }
+    // 장소 하나의 현재 언어 표시 정보 (번역이 없으면 한국어 원본)
+    function sp(s) {
+      const e = lang === 'en' ? SPOTS_EN[s.id] : null;
+      return { name: (e && e.name) || s.name, work: (e && e.work) || s.work, loc: (e && e.loc) || s.loc, desc: (e && e.desc) || s.desc, cat: t('cat.' + s.cat) };
+    }
+    const countryLabel = c => (lang === 'en' ? (COUNTRY_EN[c] || c) : c);
+    // 검색은 한국어와 영어 이름을 모두 대상으로 한다
+    function searchText(s) {
+      const e = SPOTS_EN[s.id] || {};
+      return [s.name, s.work, s.loc, s.cat, e.name, e.work, e.loc, countryLabel(s.country), COUNTRY_EN[s.country]].filter(Boolean).join(' ').toLowerCase();
+    }
+    function applyStatic() {
+      document.documentElement.lang = lang;
+      document.title = t('app.docTitle');
+      const meta = document.querySelector('meta[name="apple-mobile-web-app-title"]'); if (meta) meta.content = t('app.short');
+      document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+      document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+      document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+        el.dataset.i18nAttr.split(',').forEach(p => { const i = p.indexOf(':'); el.setAttribute(p.slice(0, i), t(p.slice(i + 1))); });
+      });
+      $('langBtn').textContent = t('lang.btn');
+      darkToggleBtn.innerText = document.body.classList.contains('dark-mode') ? t('theme.light') : t('theme.dark');
+      updateDiaryBtn();
+    }
+
     // ---------- 다크 모드 ----------
     function applyDarkMode(dark) {
       document.body.classList.toggle('dark-mode', dark);
-      darkToggleBtn.innerText = dark ? '라이트 모드' : '다크 모드';
+      darkToggleBtn.innerText = dark ? t('theme.light') : t('theme.dark');
       store.set(KEYS.dark, dark);
     }
     applyDarkMode(isDarkMode);
@@ -445,7 +486,7 @@
       saveFav(); afterRecordChange(id);
     }
     function toggleVisited(id) {
-      if (id in visited) delete visited[id]; else { visited[id] = today(); toast('방문 완료! 도장 쾅 ✔'); }
+      if (id in visited) delete visited[id]; else { visited[id] = today(); toast(t('toast.visited')); }
       saveVisited(); afterRecordChange(id);
     }
     function updateProgress() {
@@ -458,7 +499,7 @@
     function getFiltered() {
       const q = searchInput.value.trim().toLowerCase();
       const list = spots.filter(s => {
-        if (q && !(s.name + ' ' + s.work + ' ' + s.loc + ' ' + s.cat).toLowerCase().includes(q)) return false;
+        if (q && !searchText(s).includes(q)) return false;
         if (filters.cat !== 'all' && s.cat !== filters.cat) return false;
         if (filters.country !== 'all' && s.country !== filters.country) return false;
         if (filters.status === 'fav' && !favorites.includes(s.id)) return false;
@@ -466,9 +507,9 @@
         if (filters.status === 'todo' && (s.id in visited)) return false;
         return true;
       });
-      const ko = (a, b) => a.localeCompare(b, 'ko');
-      if (filters.sort === 'name') list.sort((a, b) => ko(a.name, b.name));
-      else if (filters.sort === 'country') list.sort((a, b) => ko(a.country, b.country) || a.id - b.id);
+      const ko = (a, b) => a.localeCompare(b, lang);
+      if (filters.sort === 'name') list.sort((a, b) => ko(sp(a).name, sp(b).name));
+      else if (filters.sort === 'country') list.sort((a, b) => ko(countryLabel(a.country), countryLabel(b.country)) || a.id - b.id);
       else if (filters.sort === 'fav') list.sort((a, b) => (favorites.includes(b.id) - favorites.includes(a.id)) || a.id - b.id);
       else if (filters.sort === 'todo') list.sort((a, b) => ((a.id in visited) - (b.id in visited)) || a.id - b.id);
       else if (filters.sort === 'near' && userPos) list.sort((a, b) => distKm(a) - distKm(b));
@@ -476,12 +517,16 @@
     }
 
     function buildCountrySelect() {
+      const sel = $('countrySelect'), cur = filters.country;
       const counts = {};
       spots.forEach(s => { counts[s.country] = (counts[s.country] || 0) + 1; });
-      Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b, 'ko')).forEach(c => {
-        const o = document.createElement('option'); o.value = c; o.textContent = c + ' (' + counts[c] + ')';
-        $('countrySelect').appendChild(o);
+      sel.innerHTML = '';
+      const all = document.createElement('option'); all.value = 'all'; all.textContent = t('filter.countryAll'); sel.appendChild(all);
+      Object.keys(counts).sort((a, b) => counts[b] - counts[a] || countryLabel(a).localeCompare(countryLabel(b), lang)).forEach(c => {
+        const o = document.createElement('option'); o.value = c; o.textContent = countryLabel(c) + ' (' + counts[c] + ')';
+        sel.appendChild(o);
       });
+      sel.value = cur;
     }
 
     function applyFilters() {
@@ -497,7 +542,7 @@
       listSection.innerHTML = '';
 
       if (currentList.length === 0) {
-        listSection.innerHTML = '<div class="no-results">조건에 맞는 성지가 없습니다.</div>';
+        listSection.innerHTML = '<div class="no-results">' + t('list.none') + '</div>';
         return;
       }
       if (!currentList.some(s => s.id === selectedSpotId)) selectedSpotId = currentList[0].id;
@@ -505,22 +550,22 @@
       const frag = document.createDocumentFragment();
       const count = document.createElement('div');
       count.className = 'list-count';
-      count.textContent = currentList.length + '곳';
+      count.textContent = t('list.count', { n: currentList.length });
       frag.appendChild(count);
 
       currentList.forEach(spot => {
         const isFav = favorites.includes(spot.id);
         const card = document.createElement('div');
         card.className = 'card' + (spot.id === selectedSpotId ? ' selected' : '') + (spot.id in visited ? ' visited' : '');
-        card.dataset.id = spot.id;
+        card.dataset.id = spot.id; card.dataset.vtag = t('card.visited'); const S = sp(spot);
         card.innerHTML = `
-          <img src="${spot.thumb}" alt="${spot.name}" class="thumbnail" loading="lazy" onerror="handleImgError(this)">
+          <img src="${spot.thumb}" alt="${S.name}" class="thumbnail" loading="lazy" onerror="handleImgError(this)">
           <div class="card-content">
-            <span class="card-cat">${spot.cat} | ${spot.work}</span>
-            <div class="card-title">${spot.id}. ${spot.name}</div>
-            <div class="card-meta">위치: ${spot.loc}${distText(spot)}</div>
+            <span class="card-cat">${S.cat} | ${S.work}</span>
+            <div class="card-title">${spot.id}. ${S.name}</div>
+            <div class="card-meta">${t('card.loc')}${S.loc}${distText(spot)}</div>
           </div>
-          <button class="btn-star ${isFav ? 'active' : ''}" data-id="${spot.id}" aria-label="찜하기">
+          <button class="btn-star ${isFav ? 'active' : ''}" data-id="${spot.id}" aria-label="${t('card.favAria')}">
             <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
           </button>`;
         frag.appendChild(card);
@@ -549,7 +594,7 @@
       const spot = spotById.get(id);
       if (!spot) return;
       if (editor && editor.spotId !== id) {
-        if (editorDirty() && !confirm('작성 중인 일기를 버리고 이동할까요?')) { highlightCard(false); return; }
+        if (editorDirty() && !confirm(t('confirm.leaveEditor'))) { highlightCard(false); return; }
         discardEditor();
       }
       selectedSpotId = id;
@@ -624,7 +669,7 @@
 
     async function loadDiary() {
       const ok = await idb.open();
-      if (!ok) toast('이 환경에서는 일기가 저장되지 않아요. (시크릿 모드 등) 새로고침하면 사라집니다.');
+      if (!ok) toast(t('diary.noPersist'));
       diary = await idb.getAll('entries');
       // 예전 메모를 첫 일기로 옮김 (한 번만)
       if (ok && !store.get(KEYS.diaryMig, false)) {
@@ -640,7 +685,7 @@
       diaryReady = true;
       renderDiary(); updateDiaryBtn();
     }
-    function updateDiaryBtn() { $('diaryBtn').textContent = diary.length ? `내 일기 (${diary.length})` : '내 일기'; }
+    function updateDiaryBtn() { $('diaryBtn').textContent = diary.length ? t('diary.btnN', { n: diary.length }) : t('diary.btn'); }
 
     async function resizeImage(file) {
       let src, w, h;
@@ -668,7 +713,7 @@
     }
     async function openEditor(entryId) {
       const spotId = selectedSpotId;
-      if (editorDirty() && editor.spotId === spotId && !confirm('작성 중인 내용을 버리고 새로 열까요?')) return;
+      if (editorDirty() && editor.spotId === spotId && !confirm(t('confirm.reopen'))) return;
       discardEditor();
       if (entryId) {
         const e = diary.find(x => x.id === entryId); if (!e) return;
@@ -684,16 +729,16 @@
       const ta = $('diaryText'); if (ta) { ta.focus(); ta.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
     }
     function cancelEditor() {
-      if (editorDirty() && !confirm('작성 중인 내용을 버릴까요?')) return;
+      if (editorDirty() && !confirm(t('confirm.discard'))) return;
       discardEditor(); renderDiary();
     }
     async function addPhotos(files) {
-      if (!editor) { toast('먼저 [＋ 일기 쓰기]를 눌러주세요.'); return; }
+      if (!editor) { toast(t('diary.needOpen')); return; }
       const room = MAX_PHOTOS - editor.photos.length;
-      if (files.length > room) toast(`사진은 일기 하나에 최대 ${MAX_PHOTOS}장이에요.`);
+      if (files.length > room) toast(t('diary.maxPhotos', { n: MAX_PHOTOS }));
       for (const f of files.slice(0, Math.max(0, room))) {
         try { const blob = await resizeImage(f); editor.photos.push({ id: newId(), blob, url: URL.createObjectURL(blob), isNew: true }); }
-        catch (e) { toast('읽을 수 없는 사진이 있어요: ' + (f.name || '')); }
+        catch (e) { toast(t('diary.badPhoto', { name: f.name || '' })); }
       }
       renderDiary();
     }
@@ -705,7 +750,7 @@
     async function saveEditor() {
       if (!editor || editor.saving) return;
       const text = editor.text.trim();
-      if (!text && !editor.photos.length) { toast('글이나 사진을 하나는 넣어주세요.'); return; }
+      if (!text && !editor.photos.length) { toast(t('diary.needContent')); return; }
       editor.saving = true;
       try {
         const old = editor.entryId ? diary.find(x => x.id === editor.entryId) : null;
@@ -720,41 +765,41 @@
         editor.photos.forEach(p => { if (p.isNew) photoUrls.set(p.id, p.url); });
         editor = null;
         markDirty(); renderDiary(); updateDiaryBtn();
-        toast('일기를 저장했어요.');
+        toast(t('diary.saved'));
       } catch (e) {
         editor.saving = false;
-        toast('저장하지 못했어요. 저장 공간이 부족할 수 있어요.');
+        toast(t('diary.saveFail'));
       }
     }
     async function deleteEntry(id) {
       const e = diary.find(x => x.id === id); if (!e) return;
-      if (!confirm('이 일기와 사진을 삭제할까요? 되돌릴 수 없어요.')) return;
+      if (!confirm(t('diary.confirmDelete'))) return;
       try {
         for (const pid of e.photos) { await idb.del('photos', pid); const u = photoUrls.get(pid); if (u) URL.revokeObjectURL(u); photoUrls.delete(pid); }
         await idb.del('entries', id);
         diary = diary.filter(x => x.id !== id);
         markDirty(); renderDiary(); updateDiaryBtn();
-      } catch (err) { toast('삭제하지 못했어요.'); }
+      } catch (err) { toast(t('diary.deleteFail')); }
     }
 
     function entryHtml(e) {
       return `<div class="diary-entry">
         <div class="diary-head"><b>${e.date}</b><span class="diary-actions">
-          <button class="link-btn" data-act="diary-edit" data-eid="${e.id}">수정</button>
-          <button class="link-btn danger" data-act="diary-del" data-eid="${e.id}">삭제</button></span></div>
+          <button class="link-btn" data-act="diary-edit" data-eid="${e.id}">${t('diary.edit')}</button>
+          <button class="link-btn danger" data-act="diary-del" data-eid="${e.id}">${t('diary.del')}</button></span></div>
         ${e.text ? `<div class="diary-text">${esc(e.text)}</div>` : ''}
-        ${e.photos.length ? `<div class="photo-grid">${e.photos.map((p, i) => `<img data-photo="${p}" data-act="photo-view" data-eid="${e.id}" data-idx="${i}" alt="일기 사진">`).join('')}</div>` : ''}
+        ${e.photos.length ? `<div class="photo-grid">${e.photos.map((p, i) => `<img data-photo="${p}" data-act="photo-view" data-eid="${e.id}" data-idx="${i}" alt="${t('diary.photoAlt')}">`).join('')}</div>` : ''}
       </div>`;
     }
     function editorHtml() {
       return `<div class="diary-entry editing">
-        <div class="memo-row">날짜 <input type="date" id="diaryDate" value="${editor.date}" max="${today()}"></div>
-        <textarea id="diaryText" rows="5" maxlength="5000" placeholder="이곳에서 어땠나요? 날씨, 느낀 점, 다음에 갈 사람을 위한 팁을 자유롭게 적어보세요."></textarea>
+        <div class="memo-row">${t('diary.date')} <input type="date" id="diaryDate" value="${editor.date}" max="${today()}"></div>
+        <textarea id="diaryText" rows="5" maxlength="5000" placeholder="${esc(t('diary.placeholder'))}"></textarea>
         <div class="photo-grid">
-          ${editor.photos.map(p => `<div class="photo-wrap"><img src="${p.url}" alt=""><button class="photo-rm" data-act="photo-rm" data-pid="${p.id}" aria-label="사진 삭제">×</button></div>`).join('')}
-          ${editor.photos.length < MAX_PHOTOS ? '<button class="photo-add" data-act="photo-add" type="button">＋<span>사진</span></button>' : ''}
+          ${editor.photos.map(p => `<div class="photo-wrap"><img src="${p.url}" alt=""><button class="photo-rm" data-act="photo-rm" data-pid="${p.id}" aria-label="${t('diary.photoRm')}">×</button></div>`).join('')}
+          ${editor.photos.length < MAX_PHOTOS ? '<button class="photo-add" data-act="photo-add" type="button">＋<span>' + t('diary.addPhoto') + '</span></button>' : ''}
         </div>
-        <div class="btn-row"><button class="act primary" data-act="diary-save">저장</button><button class="act" data-act="diary-cancel">취소</button></div>
+        <div class="btn-row"><button class="act primary" data-act="diary-save">${t('diary.save')}</button><button class="act" data-act="diary-cancel">${t('diary.cancel')}</button></div>
       </div>`;
     }
     function loadPhotoImgs(root) {
@@ -762,11 +807,11 @@
     }
     function renderDiary() {
       const area = $('diaryArea'); if (!area) return;
-      if (!diaryReady) { area.innerHTML = '<div class="diary-empty">일기를 불러오는 중...</div>'; return; }
+      if (!diaryReady) { area.innerHTML = '<div class="diary-empty">' + t('diary.loading') + '</div>'; return; }
       const editing = !!editor && editor.spotId === selectedSpotId;
       let html = editing ? editorHtml() : '';
       html += entriesOf(selectedSpotId).filter(e => !(editing && editor.entryId === e.id)).map(entryHtml).join('');
-      area.innerHTML = html || '<div class="diary-empty">아직 일기가 없어요. 다녀오셨다면 첫 일기를 남겨보세요.</div>';
+      area.innerHTML = html || '<div class="diary-empty">' + t('diary.empty') + '</div>';
       if (editing) $('diaryText').value = editor.text;
       loadPhotoImgs(area);
     }
@@ -806,9 +851,9 @@
         const s = spotById.get(e.spotId);
         return `<div class="da-item" data-spot="${e.spotId}">
           <div class="da-thumb">${e.photos[0] ? `<img data-photo="${e.photos[0]}" alt="">` : '📝'}</div>
-          <div class="da-body"><div class="da-title">${esc(s.name)}<span>${e.date}${e.photos.length ? ' · 사진 ' + e.photos.length : ''}</span></div>
-          <div class="da-text">${esc(e.text.slice(0, 90)) || '(사진만 있는 일기)'}</div></div></div>`;
-      }).join('') || '<div class="diary-empty">아직 일기가 없어요. 성지 상세 화면에서 [＋ 일기 쓰기]를 눌러 시작해 보세요.</div>';
+          <div class="da-body"><div class="da-title">${esc(sp(s).name)}<span>${e.date}${e.photos.length ? t('diary.allPhotos', { n: e.photos.length }) : ''}</span></div>
+          <div class="da-text">${esc(e.text.slice(0, 90)) || t('diary.photoOnly')}</div></div></div>`;
+      }).join('') || '<div class="diary-empty">' + t('diary.allEmpty') + '</div>';
       loadPhotoImgs($('diaryAllList'));
       $('diaryModal').classList.add('show');
     }
@@ -831,34 +876,35 @@
     function renderDetail() {
       const spot = spotById.get(selectedSpotId);
       if (!spot) return;
+      const S = sp(spot);
       const isFav = favorites.includes(spot.id), isVisited = spot.id in visited;
       const related = spots.filter(s => s.id !== spot.id && sharesWork(s, spot));
 
       detailSection.innerHTML = `
         <div class="detail-header">
-          <span class="detail-badge">${spot.cat}</span>${isVisited ? '<span class="detail-badge visit">✔ 방문 완료</span>' : ''}
-          <div class="detail-title">${spot.id}. ${spot.name}</div>
-          <div class="detail-work">작품명: ${spot.work}</div>
-          <div class="detail-loc">위치: ${spot.loc}</div>
+          <span class="detail-badge">${S.cat}</span>${isVisited ? '<span class="detail-badge visit">' + t('detail.visitedBadge') + '</span>' : ''}
+          <div class="detail-title">${spot.id}. ${S.name}</div>
+          <div class="detail-work">${t('detail.work')}${S.work}</div>
+          <div class="detail-loc">${t('detail.loc')}${S.loc}</div>
           <div class="action-row">
-            <button class="act ${isFav ? 'on-fav' : ''}" data-act="fav">${isFav ? '★ 찜함' : '☆ 찜하기'}</button>
-            <button class="act ${isVisited ? 'on-visit' : ''}" data-act="visit">${isVisited ? '✔ 방문함' : '□ 방문 체크'}</button>
-            <a class="act" href="${mapsDirUrl(spot)}" target="_blank" rel="noopener">길찾기</a>
-            <a class="act" href="${mapsOpenUrl(spot)}" target="_blank" rel="noopener">구글지도 열기</a>
-            <button class="act" data-act="share">공유</button>
+            <button class="act ${isFav ? 'on-fav' : ''}" data-act="fav">${isFav ? t('detail.favOn') : t('detail.favOff')}</button>
+            <button class="act ${isVisited ? 'on-visit' : ''}" data-act="visit">${isVisited ? t('detail.visitOn') : t('detail.visitOff')}</button>
+            <a class="act" href="${mapsDirUrl(spot)}" target="_blank" rel="noopener">${t('detail.dir')}</a>
+            <a class="act" href="${mapsOpenUrl(spot)}" target="_blank" rel="noopener">${t('detail.openMap')}</a>
+            <button class="act" data-act="share">${t('detail.share')}</button>
           </div>
         </div>
         <div class="detail-body">
           <div class="detail-imgwrap">
-            <img src="${spot.thumb}" alt="${spot.name}" class="detail-img" onerror="handleImgError(this)">
+            <img src="${spot.thumb}" alt="${S.name}" class="detail-img" onerror="handleImgError(this)">
             ${creditHtml(spot)}
           </div>
-          <div class="detail-desc">${spot.desc}</div>
+          <div class="detail-desc">${S.desc}</div>
         </div>
-        ${related.length ? `<div class="sub-title">같은 작품의 다른 성지</div>
-          <div class="related">${related.map(r => `<button class="chip" data-rel="${r.id}">${r.name}</button>`).join('')}</div>` : ''}
-        <div class="sub-title row">내 일기 <button class="act small primary" data-act="diary-new">＋ 일기 쓰기</button></div>
-        ${isVisited ? `<div class="memo-row">방문일 <input type="date" id="visitDate" value="${visited[spot.id]}" max="${today()}"></div>` : ''}
+        ${related.length ? `<div class="sub-title">${t('detail.related')}</div>
+          <div class="related">${related.map(r => `<button class="chip" data-rel="${r.id}">${sp(r).name}</button>`).join('')}</div>` : ''}
+        <div class="sub-title row">${t('diary.title')} <button class="act small primary" data-act="diary-new">${t('diary.new')}</button></div>
+        ${isVisited ? `<div class="memo-row">${t('detail.visitDate')} <input type="date" id="visitDate" value="${visited[spot.id]}" max="${today()}"></div>` : ''}
         <div id="diaryArea"></div>`;
       renderDiary();
     }
@@ -901,11 +947,12 @@
     }
 
     async function shareSpot(spot) {
-      const text = `${spot.name} (${spot.work})\n${spot.loc}\n${mapsOpenUrl(spot)}`;
+      const S = sp(spot);
+      const text = `${S.name} (${S.work})\n${S.loc}\n${mapsOpenUrl(spot)}`;
       try {
-        if (navigator.share) { await navigator.share({ title: spot.name, text }); return; }
+        if (navigator.share) { await navigator.share({ title: S.name, text }); return; }
       } catch (e) { if (e && e.name === 'AbortError') return; }
-      copyText(text).then(ok => toast(ok ? '성지 정보를 복사했어요.' : '복사에 실패했어요.'));
+      copyText(text).then(ok => toast(ok ? t('toast.shareCopied') : t('toast.copyFail')));
     }
 
     async function copyText(text) {
@@ -945,20 +992,20 @@
       return ' · 📍 ' + (d < 1 ? Math.round(d * 1000) + 'm' : d < 100 ? d.toFixed(1) + 'km' : Math.round(d).toLocaleString() + 'km');
     }
     function requestLocation() {
-      if (!navigator.geolocation) { toast('이 기기에서는 위치를 사용할 수 없어요.'); resetSort(); return; }
-      toast('현재 위치를 확인하는 중...');
+      if (!navigator.geolocation) { toast(t('loc.noGeo')); resetSort(); return; }
+      toast(t('loc.locating'));
       navigator.geolocation.getCurrentPosition(pos => {
         userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         applyFilters();
-      }, () => { toast('위치 권한이 필요해요. 설정에서 허용해 주세요.'); resetSort(); }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
+      }, () => { toast(t('loc.denied')); resetSort(); }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
     }
     function resetSort() { filters.sort = 'id'; $('sortSelect').value = 'id'; applyFilters(); }
 
     // ---------- 사진 출처 ----------
     function creditHtml(s) {
       const c = CREDITS[s.id]; if (!c) return '';
-      const who = c.a ? esc(c.a) : '작성자 미상';
-      return `<div class="photo-credit">사진: ${who} · <a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.l || '출처')}</a></div>`;
+      const who = c.a ? esc(c.a) : t('credit.unknown');
+      return `<div class="photo-credit">${t('credit.photo')}${who} · <a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.l || t('credit.source'))}</a></div>`;
     }
 
     // ---------- 국가별 도장판 ----------
@@ -967,8 +1014,8 @@
       spots.forEach(s => { const o = by[s.country] || (by[s.country] = { t: 0, v: 0 }); o.t++; if (s.id in visited) o.v++; });
       const names = Object.keys(by).sort((a, b) => by[b].v - by[a].v || by[b].t - by[a].t || a.localeCompare(b, 'ko'));
       const stamped = names.filter(n => by[n].v > 0).length, done = names.filter(n => by[n].v === by[n].t).length;
-      $('stampSummary').textContent = `방문한 나라 ${stamped} / ${names.length}곳 · 모두 정복한 나라 ${done}곳. 도장을 누르면 그 나라 성지만 보여줘요.`;
-      $('stampGrid').innerHTML = names.map(n => `<button class="stamp ${by[n].v === by[n].t ? 'done' : by[n].v ? 'some' : ''}" data-country="${esc(n)}">${esc(n)}<b>${by[n].v}/${by[n].t}</b></button>`).join('');
+      $('stampSummary').textContent = t('stamp.summary', { stamped, total: names.length, done });
+      $('stampGrid').innerHTML = names.map(n => `<button class="stamp ${by[n].v === by[n].t ? 'done' : by[n].v ? 'some' : ''}" data-country="${esc(n)}">${esc(countryLabel(n))}<b>${by[n].v}/${by[n].t}</b></button>`).join('');
       $('stampModal').classList.add('show');
     }
     function closeStamps() { $('stampModal').classList.remove('show'); }
@@ -1046,14 +1093,14 @@
     const fmtMB = b => (b / 1048576).toFixed(b < 10485760 ? 1 : 0) + 'MB';
     async function refreshBackupStat() {
       const c = recordCounts(), last = store.get(KEYS.lastBackup, 0);
-      let lastTxt = '아직 백업한 적 없음';
-      if (last) { const d = Math.floor((Date.now() - last) / DAY); lastTxt = d === 0 ? '오늘' : d + '일 전'; }
-      let persist = '확인 불가';
-      try { if (navigator.storage && navigator.storage.persisted) persist = (await navigator.storage.persisted()) ? '보호됨 (브라우저가 임의로 지우지 않음)' : '기본 (저장 공간 부족 시 삭제될 수 있음)'; } catch (e) {}
+      let lastTxt = t('backup.never');
+      if (last) { const d = Math.floor((Date.now() - last) / DAY); lastTxt = d === 0 ? t('backup.today') : t('backup.daysAgo', { n: d }); }
+      let persist = t('backup.persistUnknown');
+      try { if (navigator.storage && navigator.storage.persisted) persist = (await navigator.storage.persisted()) ? t('backup.persistYes') : t('backup.persistNo'); } catch (e) {}
       let bytes = 0;
       try { bytes = (await idb.getAll('photos')).reduce((n, p) => n + (p.blob ? p.blob.size : 0), 0); } catch (e) {}
-      $('backupStat').innerHTML = `찜 <b>${c.fav}</b> · 방문 <b>${c.visited}</b> · 일기 <b>${c.diary}</b> · 사진 <b>${c.photos}</b>장${bytes ? ' (' + fmtMB(bytes) + ')' : ''}<br>마지막 백업: ${lastTxt}<br>저장소 상태: ${persist}`;
-      $('photoSize').textContent = bytes ? `(백업 파일 약 ${fmtMB(bytes * 1.37)} 커짐)` : '';
+      $('backupStat').innerHTML = t('backup.stat', { fav: c.fav, visited: c.visited, diary: c.diary, photos: c.photos, size: bytes ? ' (' + fmtMB(bytes) + ')' : '', last: lastTxt, persist });
+      $('photoSize').textContent = bytes ? t('backup.sizeNote', { size: fmtMB(bytes * 1.37) }) : '';
     }
     function openBackup() { requestPersist(); refreshBackupStat(); $('backupModal').classList.add('show'); }
     function closeBackup() { $('backupModal').classList.remove('show'); }
@@ -1077,21 +1124,21 @@
           if (withPhotos) for (const pid of e.photos) { const rec = await idb.get('photos', pid); if (rec) out.photos.push({ id: pid, data: await toData(rec.blob) }); }
           entries.push(out);
         }
-      } catch (err) { toast('백업 파일을 만들지 못했어요. 사진 포함을 끄고 다시 시도해 보세요.'); return; }
+      } catch (err) { toast(t('backup.exportFail')); return; }
       const data = { app: 'movie-spots', version: 2, exportedAt: new Date().toISOString(), favorites, visited, diary: entries, includesPhotos: withPhotos };
-      const name = '성지순례-백업-' + today().replace(/-/g, '') + '.json';
+      const name = t('backup.fileName') + today().replace(/-/g, '') + '.json';
       const file = new File([JSON.stringify(data, null, 2)], name, { type: 'application/json' });
       let done = false;
       try {
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: '성지순례 백업' });
+          await navigator.share({ files: [file], title: t('backup.shareTitle') });
           done = true;
         }
       } catch (e) { if (e && e.name === 'AbortError') return; }
       if (!done) { downloadBlob(file, name); }
       store.set(KEYS.lastBackup, Date.now()); store.set(KEYS.dirty, false);
       updateBackupDot(); refreshBackupStat();
-      toast('백업 파일을 저장했어요. 안전한 곳에 보관하세요.');
+      toast(t('backup.exported'));
     });
 
     $('importBtn').addEventListener('click', () => $('importFile').click());
@@ -1141,18 +1188,18 @@
         }
         saveFav(); saveVisited(); markDirty();
         updateProgress(); applyFilters(); renderDetail(); updateDiaryBtn(); refreshBackupStat();
-        toast(`불러오기 완료: 찜 +${addFav}, 방문 +${addVis}, 일기 +${addNote}, 사진 +${addPhoto}`);
+        toast(t('backup.imported', { fav: addFav, vis: addVis, diary: addNote, photo: addPhoto }));
       } catch (err) {
-        toast('올바른 백업 파일이 아니에요.');
+        toast(t('backup.importBad'));
       }
     });
 
     $('aboutBtn').addEventListener('click', () => { closeBackup(); $('aboutModal').classList.add('show'); });
     $('routeBtn').addEventListener('click', () => {
       const stops = currentList.filter(s => favorites.includes(s.id) && COORDS[s.id]).sort((a, b) => a.id - b.id);
-      if (stops.length < 2) { toast('현재 목록에 찜한 성지가 2곳 이상 있어야 루트를 만들 수 있어요.'); return; }
+      if (stops.length < 2) { toast(t('trip.needTwo')); return; }
       const use = stops.slice(0, 11);
-      if (stops.length > use.length) toast(`구글지도 제한으로 앞의 ${use.length}곳만 열어요.`);
+      if (stops.length > use.length) toast(t('trip.limit', { n: use.length }));
       const pt = s => COORDS[s.id].join(',');
       const url = 'https://www.google.com/maps/dir/?api=1&origin=' + pt(use[0]) + '&destination=' + pt(use[use.length - 1]) +
         (use.length > 2 ? '&waypoints=' + use.slice(1, -1).map(pt).join('%7C') : '');
@@ -1160,20 +1207,20 @@
     });
     $('copyFavBtn').addEventListener('click', async () => {
       const list = spots.filter(s => favorites.includes(s.id));
-      if (!list.length) { toast('찜한 성지가 없어요.'); return; }
-      const text = '[찜한 성지 ' + list.length + '곳]\n' + list.map(s => `${s.id}. ${s.name} — ${s.work} (${s.loc})\n   ${mapsOpenUrl(s)}`).join('\n');
-      toast((await copyText(text)) ? '찜 목록을 복사했어요.' : '복사에 실패했어요.');
+      if (!list.length) { toast(t('trip.noFav')); return; }
+      const text = t('trip.copyHead', { n: list.length }) + '\n' + list.map(s => { const S = sp(s); return `${s.id}. ${S.name} — ${S.work} (${S.loc})\n   ${mapsOpenUrl(s)}`; }).join('\n');
+      toast((await copyText(text)) ? t('trip.copied') : t('toast.copyFail'));
     });
     $('csvFavBtn').addEventListener('click', () => {
       const list = spots.filter(s => favorites.includes(s.id));
-      if (!list.length) { toast('찜한 성지가 없어요.'); return; }
+      if (!list.length) { toast(t('trip.noFav')); return; }
       const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
-      const rows = [['번호', '장소', '작품', '종류', '위치', '방문여부', '좌표', '구글지도']].concat(list.map(s => [
-        s.id, s.name, s.work, s.cat, s.loc, (s.id in visited) ? '방문 ' + visited[s.id] : '미방문', (COORDS[s.id] || []).join(','), mapsOpenUrl(s)
-      ]));
+      const rows = [t('trip.csvHead').split(',')].concat(list.map(s => { const S = sp(s); return [
+        s.id, S.name, S.work, S.cat, S.loc, (s.id in visited) ? t('trip.csvVisited', { date: visited[s.id] }) : t('trip.csvNot'), (COORDS[s.id] || []).join(','), mapsOpenUrl(s)
+      ]; }));
       const csv = '﻿' + rows.map(r => r.map(esc).join(',')).join('\r\n');
-      downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), '찜한-성지.csv');
-      toast('CSV 파일을 저장했어요.');
+      downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), t('trip.csvFile'));
+      toast(t('trip.csvDone'));
     });
 
     // 오래 백업하지 않았다면 한 번 알려주기
@@ -1182,11 +1229,22 @@
       if (c.fav + c.visited + c.diary === 0) return;
       const last = store.get(KEYS.lastBackup, 0);
       if (store.get(KEYS.dirty, false) && (!last || Date.now() - last > 30 * DAY)) {
-        setTimeout(() => toast('기록을 백업한 지 오래됐어요. 상단 [백업]에서 저장해 두세요.'), 1500);
+        setTimeout(() => toast(t('backup.remind')), 1500);
       }
     }
 
+    // ---------- 언어 전환 ----------
+    function setLang(next) {
+      lang = next; store.set('spotLang', lang);
+      applyStatic(); buildCountrySelect(); updateProgress(); renderList(); renderDetail(); renderDiary();
+      if ($('backupModal').classList.contains('show')) refreshBackupStat();
+      if ($('diaryModal').classList.contains('show')) openDiaryAll();
+      if ($('stampModal').classList.contains('show')) openStamps();
+    }
+    $('langBtn').addEventListener('click', () => setLang(LANGS[(LANGS.indexOf(lang) + 1) % LANGS.length]));
+
     // ---------- 시작 ----------
+    applyStatic();
     buildCountrySelect();
     const hashId = spotFromHash();
     if (hashId) selectedSpotId = hashId;
@@ -1195,7 +1253,7 @@
     renderList();
     select(selectedSpotId, { scroll: !!hashId });
     if (hashId) setMobileView('detail');
-    loadDiary().catch(() => { diaryReady = true; renderDiary(); toast('일기를 불러오지 못했어요.'); }).then(remindBackup);
+    loadDiary().catch(() => { diaryReady = true; renderDiary(); toast(t('diary.loadFail')); }).then(remindBackup);
 
     // 앱 설치(PWA)와 오프라인 지원: http(s)로 열었을 때만 동작
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
