@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>전 세계 영화·애니 성지 122선</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a73e8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="성지순례">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    :root {
+      --bg-body: #f8f9fa;
+      --bg-header: #1a73e8;
+      --bg-card: #ffffff;
+      --bg-card-select: #e8f0fe;
+      --border-card: #e2e8f0;
+      --text-main: #333333;
+      --text-title: #202124;
+      --text-sub: #5f6368;
+      --text-desc: #4a5568;
+      --bg-list: #ffffff;
+      --border-list: #e0e0e0;
+      --map-bg: #e5e3df;
+      --bg-detail: #ffffff;
+      --chip-bg: #eef1f5;
+      --chip-text: #3c4043;
+      --accent: #1a73e8;
+      --ok: #34a853;
+      --fav: #f1c40f;
+    }
+
+    body.dark-mode {
+      --bg-body: #121212;
+      --bg-header: #1f1f1f;
+      --bg-card: #1e1e1e;
+      --bg-card-select: #2c3e50;
+      --border-card: #333333;
+      --text-main: #e0e0e0;
+      --text-title: #ffffff;
+      --text-sub: #a0a0a0;
+      --text-desc: #cccccc;
+      --bg-list: #181818;
+      --border-list: #2c2c2c;
+      --map-bg: #242424;
+      --bg-detail: #1e1e1e;
+      --chip-bg: #2a2a2a;
+      --chip-text: #d0d0d0;
+      --accent: #64b5f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; color: var(--text-main); background-color: var(--bg-body); height: 100vh; height: 100dvh; display: flex; flex-direction: column; transition: background-color 0.3s, color 0.3s; overflow: hidden; }
+    button, select, input, textarea { font-family: inherit; }
+
+    /* 헤더 */
+    header { background-color: var(--bg-header); color: white; padding: 0.8rem 1.2rem; display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
+    header h1 { font-size: 1.25rem; font-weight: 700; white-space: nowrap; }
+    .progress { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 160px; max-width: 280px; font-size: 0.8rem; font-weight: bold; }
+    .progress-bar { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.28); overflow: hidden; }
+    .progress-bar span { display: block; height: 100%; width: 0; background: #7be495; transition: width 0.4s; }
+    .search-input { padding: 0.5rem 1rem; border: none; border-radius: 20px; outline: none; width: 220px; font-size: 16px; margin-left: auto; }
+    .controls { display: flex; gap: 8px; align-items: center; }
+    .btn-control { position: relative; padding: 0.5rem 1rem; border: none; border-radius: 20px; background-color: rgba(255,255,255,0.2); color: white; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 0.85rem; white-space: nowrap; min-height: 36px; }
+    .btn-control:hover { background-color: rgba(255,255,255,0.3); }
+    .dot { display: none; position: absolute; top: 3px; right: 3px; width: 10px; height: 10px; border-radius: 50%; background: #ff5252; border: 2px solid var(--bg-header); }
+    .dot.show { display: block; }
+
+    /* 필터 바 */
+    .filter-bar { display: flex; gap: 8px; align-items: center; padding: 0.55rem 1.2rem; background: var(--bg-list); border-bottom: 1px solid var(--border-list); overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .chip-group { display: flex; gap: 6px; flex-shrink: 0; }
+    .chip-sep { width: 1px; height: 22px; background: var(--border-list); flex-shrink: 0; }
+    .chip { border: none; background: var(--chip-bg); color: var(--chip-text); padding: 0.4rem 0.85rem; border-radius: 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; min-height: 34px; }
+    .chip.active { background: var(--accent); color: #fff; }
+    body.dark-mode .chip.active { color: #0b1a2b; }
+    .filter-bar select { flex-shrink: 0; border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); padding: 0.35rem 0.5rem; border-radius: 16px; font-size: 14px; min-height: 34px; max-width: 150px; }
+
+    .main-container { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+
+    /* 좌측 리스트 섹션 */
+    .list-section { width: 380px; overflow-y: auto; padding: 1rem; border-right: 1px solid var(--border-list); background-color: var(--bg-list); flex-shrink: 0; -webkit-overflow-scrolling: touch; }
+    .list-count { font-size: 0.78rem; color: var(--text-sub); margin: 0 0 0.6rem 2px; }
+    .card { display: flex; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 10px; overflow: hidden; margin-bottom: 0.8rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s; position: relative; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .card.selected { border: 2px solid #1a73e8; background-color: var(--bg-card-select); }
+    .card.visited::after { content: "✔ 방문"; position: absolute; right: 8px; bottom: 6px; font-size: 0.68rem; font-weight: bold; color: #fff; background: var(--ok); padding: 1px 7px; border-radius: 10px; }
+
+    .thumbnail { width: 95px; height: 95px; object-fit: cover; flex-shrink: 0; background-color: #333; }
+    .img-fail { visibility: hidden; }
+    .card-content { padding: 0.7rem; flex: 1; display: flex; flex-direction: column; justify-content: center; padding-right: 2.6rem; min-width: 0; }
+    .card-cat { display: inline-block; font-size: 0.72rem; font-weight: bold; color: #1a73e8; margin-bottom: 2px; }
+    body.dark-mode .card-cat { color: #64b5f6; }
+    .card-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 4px; color: var(--text-title); line-height: 1.2; }
+    .card-meta { font-size: 0.78rem; color: var(--text-sub); margin-bottom: 2px; }
+
+    .btn-star { position: absolute; top: 2px; right: 2px; background: none; border: none; cursor: pointer; fill: #ccc; width: 40px; height: 40px; padding: 9px; }
+    .btn-star.active { fill: #f1c40f; }
+    .btn-star svg { width: 100%; height: 100%; }
+
+    /* 우측 영역 */
+    .right-section { flex: 1; display: flex; flex-direction: column; background-color: var(--map-bg); overflow: hidden; min-width: 0; }
+
+
+    .map-container { flex: 1.2; width: 100%; min-height: 250px; position: relative; }
+    .map-container iframe { width: 100%; height: 100%; border: 0; }
+
+    /* 상세 설명 */
+    .detail-section { flex: 1; background-color: var(--bg-detail); border-top: 2px solid var(--border-list); padding: 1.5rem 2rem; overflow-y: auto; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); -webkit-overflow-scrolling: touch; }
+    .detail-header { margin-bottom: 0.8rem; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem; }
+    .detail-badge { display: inline-block; background-color: #1a73e8; color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.4rem; }
+    .detail-badge.visit { background: var(--ok); margin-left: 4px; }
+    .detail-title { font-size: 1.5rem; font-weight: bold; color: var(--text-title); }
+    .detail-work { font-size: 1.05rem; color: #1a73e8; font-weight: 600; margin-top: 0.2rem; }
+    body.dark-mode .detail-work { color: #64b5f6; }
+    .detail-loc { font-size: 0.9rem; color: var(--text-sub); margin-top: 0.3rem; }
+
+    .action-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.9rem 0 0.4rem; }
+    .act { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0.5rem 0.9rem; min-height: 40px; border: 1px solid var(--border-card); border-radius: 20px; background: var(--chip-bg); color: var(--chip-text); font-size: 0.85rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .act:hover { filter: brightness(0.95); }
+    .act.on-fav { background: #fff7cc; border-color: #f1c40f; color: #7a5d00; }
+    .act.on-visit { background: var(--ok); border-color: var(--ok); color: #fff; }
+    body.dark-mode .act.on-fav { background: #4a3f00; color: #ffe27a; }
+
+    .detail-body { display: flex; gap: 1.2rem; align-items: flex-start; }
+    .detail-imgwrap { width: 280px; max-width: 40%; flex-shrink: 0; margin-top: 0.8rem; }
+    .detail-img { width: 100%; height: 190px; object-fit: cover; border-radius: 10px; background-color: #333; display: block; }
+    .photo-credit { font-size: 0.68rem; color: var(--text-sub); margin-top: 4px; line-height: 1.35; word-break: break-word; }
+    .photo-credit a { color: inherit; }
+    .map-open { position: absolute; left: 8px; bottom: 8px; z-index: 2; background: rgba(255,255,255,0.95); color: #1a73e8; padding: 0.35rem 0.7rem; border-radius: 16px; font-size: 0.78rem; font-weight: 700; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    .map-offline { position: absolute; inset: 0; z-index: 1; display: none; align-items: center; justify-content: center; text-align: center; padding: 1rem; background: var(--map-bg); color: var(--text-sub); font-size: 0.9rem; line-height: 1.6; }
+    .map-offline.show { display: flex; }
+    .stamp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; margin-top: 12px; }
+    .stamp { border: 2px dashed var(--border-card); border-radius: 50%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6px; cursor: pointer; background: none; color: var(--text-sub); font-size: 0.74rem; line-height: 1.25; }
+    .stamp b { font-size: 0.95rem; }
+    .stamp.some { border: 2px solid var(--ok); color: var(--ok); transform: rotate(-6deg); }
+    .stamp.done { border: 3px double #d93025; color: #d93025; background: rgba(217,48,37,0.08); transform: rotate(5deg); font-weight: 700; }
+    #updateBar { position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%); z-index: 2100; display: none; align-items: center; gap: 10px; background: #202124; color: #fff; padding: 0.55rem 0.7rem 0.55rem 1rem; border-radius: 24px; font-size: 0.85rem; }
+    #updateBar.show { display: flex; }
+    #updateBar button { border: none; background: #8ab4f8; color: #0b1a2b; font-weight: 700; padding: 0.4rem 0.9rem; border-radius: 16px; cursor: pointer; }
+    .detail-desc { font-size: 0.98rem; color: var(--text-desc); line-height: 1.6; white-space: pre-line; margin-top: 0.8rem; }
+
+    .sub-title { font-size: 0.9rem; font-weight: bold; color: var(--text-title); margin: 1.2rem 0 0.5rem; }
+    .related { display: flex; flex-wrap: wrap; gap: 6px; }
+    .memo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-sub); flex-wrap: wrap; }
+    .memo-row input[type=date], .diary-entry textarea { border: 1px solid var(--border-card); background: var(--bg-card); color: var(--text-main); border-radius: 8px; padding: 0.45rem 0.6rem; font-size: 16px; }
+    .diary-entry textarea { width: 100%; resize: vertical; line-height: 1.5; }
+    .act.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    body.dark-mode .act.primary { color: #0b1a2b; }
+    .act.small { min-height: 34px; padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+    .sub-title.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+    /* 일기 */
+    .diary-entry { border: 1px solid var(--border-card); border-radius: 12px; padding: 0.8rem 0.9rem; margin-bottom: 0.8rem; background: var(--bg-card); }
+    .diary-entry.editing { border: 2px solid var(--accent); }
+    .diary-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; color: var(--text-title); font-size: 0.9rem; }
+    .diary-actions { display: flex; gap: 4px; }
+    .link-btn { border: none; background: none; color: var(--text-sub); font-size: 0.82rem; padding: 0.4rem 0.5rem; cursor: pointer; min-height: 34px; }
+    .link-btn.danger { color: #d93025; }
+    .diary-text { white-space: pre-wrap; line-height: 1.65; font-size: 0.95rem; color: var(--text-desc); word-break: break-word; }
+    .diary-empty { color: var(--text-sub); font-size: 0.88rem; padding: 0.8rem 0.2rem; }
+    .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin-top: 8px; }
+    .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #333; cursor: zoom-in; display: block; }
+    .photo-wrap { position: relative; }
+    .photo-wrap img { cursor: default; }
+    .photo-rm { position: absolute; top: 3px; right: 3px; width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(0,0,0,0.65); color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer; }
+    .photo-add { aspect-ratio: 1; border: 2px dashed var(--border-card); border-radius: 8px; background: none; color: var(--text-sub); font-size: 1.6rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .photo-add span { font-size: 0.75rem; }
+    .diary-entry .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+    .diary-entry .btn-row .act { flex: 1; }
+
+    /* 일기 모아보기 / 사진 뷰어 */
+    .da-item { display: flex; gap: 10px; padding: 0.6rem 0; border-bottom: 1px solid var(--border-card); cursor: pointer; }
+    .da-thumb { width: 64px; height: 64px; border-radius: 8px; background: var(--chip-bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; overflow: hidden; }
+    .da-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .da-body { min-width: 0; flex: 1; }
+    .da-title { font-weight: bold; font-size: 0.9rem; color: var(--text-title); }
+    .da-title span { font-weight: normal; font-size: 0.78rem; color: var(--text-sub); margin-left: 6px; }
+    .da-text { font-size: 0.82rem; color: var(--text-sub); margin-top: 3px; line-height: 1.4; }
+    #lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1500; display: none; align-items: center; justify-content: center; }
+    #lightbox.show { display: flex; }
+    #lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .lb-btn { position: absolute; border: none; background: rgba(255,255,255,0.18); color: #fff; width: 48px; height: 48px; border-radius: 50%; font-size: 1.4rem; cursor: pointer; }
+    #lbClose { top: 12px; right: 12px; } #lbPrev { left: 10px; top: 50%; } #lbNext { right: 10px; top: 50%; }
+    #lbCount { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; color: #fff; font-size: 0.85rem; }
+    .check-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: var(--text-main); }
+    .check-row input { width: 20px; height: 20px; }
+
+    .no-results { text-align: center; padding: 3rem 1rem; color: var(--text-sub); font-size: 0.9rem; }
+
+    /* 모달 */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal.show { display: flex; }
+    .sheet { background: var(--bg-detail); color: var(--text-main); width: 100%; max-width: 480px; max-height: 90vh; max-height: 90dvh; overflow-y: auto; border-radius: 16px; padding: 1.3rem; }
+    .sheet h2 { font-size: 1.15rem; color: var(--text-title); display: flex; justify-content: space-between; align-items: center; }
+    .sheet h3 { font-size: 0.9rem; margin: 1.2rem 0 0.5rem; color: var(--text-title); }
+    .sheet p { font-size: 0.85rem; color: var(--text-sub); line-height: 1.5; margin-top: 4px; }
+    .sheet .stat { margin: 0.8rem 0 0; padding: 0.7rem 0.8rem; background: var(--chip-bg); border-radius: 10px; font-size: 0.85rem; line-height: 1.7; }
+    .sheet .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .sheet .act { flex: 1; min-width: 130px; }
+    .sheet .act.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    body.dark-mode .sheet .act.primary { color: #0b1a2b; }
+    .btn-close { border: none; background: none; font-size: 1.6rem; line-height: 1; color: var(--text-sub); cursor: pointer; width: 40px; height: 40px; }
+
+    #toast { position: fixed; left: 50%; bottom: 80px; transform: translateX(-50%) translateY(20px); background: rgba(32,33,36,0.94); color: #fff; padding: 0.65rem 1.1rem; border-radius: 22px; font-size: 0.85rem; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 2000; max-width: 90vw; text-align: center; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .bottom-nav { display: none; }
+
+    @media (max-width: 900px) { .detail-body { flex-direction: column; } .detail-imgwrap { max-width: 100%; width: 100%; } }
+
+    /* 모바일 */
+    @media (max-width: 768px) {
+      header { padding: 0.6rem 0.9rem; gap: 0.5rem; }
+      header h1 { font-size: 1.05rem; flex: 1 1 100%; white-space: normal; line-height: 1.25; }
+      .controls { order: 2; flex: 1 1 100%; }
+      .controls .btn-control { flex: 1; padding: 0.45rem 0.4rem; font-size: 0.8rem; }
+      body.mview-detail .filter-bar, body.mview-detail .search-input, body.mview-detail .progress { display: none; }
+      .progress { order: 3; flex-basis: 100%; max-width: none; }
+      .search-input { order: 4; flex-basis: 100%; width: 100%; margin-left: 0; }
+      .filter-bar { padding: 0.5rem 0.9rem; }
+      .list-section { width: 100%; border-right: none; padding: 0.8rem; }
+      .right-section { width: 100%; }
+      .main-container.view-list .right-section { display: none; }
+      .main-container.view-detail .list-section { display: none; }
+      .map-container { flex: none; height: 38vh; min-height: 220px; }
+      .detail-section { padding: 1rem 1rem 1.5rem; }
+      .detail-title { font-size: 1.25rem; }
+      .card:hover { transform: none; }
+      .bottom-nav { display: flex; flex-shrink: 0; background: var(--bg-list); border-top: 1px solid var(--border-list); padding-bottom: env(safe-area-inset-bottom); }
+      .bottom-nav button { flex: 1; border: none; background: none; color: var(--text-sub); font-size: 0.9rem; font-weight: 700; padding: 0.85rem 0; min-height: 52px; cursor: pointer; }
+      .bottom-nav button.active { color: var(--accent); box-shadow: inset 0 3px 0 var(--accent); }
+      .sheet { max-width: none; }
+      .modal { align-items: flex-end; padding: 0; }
+      .sheet { border-radius: 16px 16px 0 0; padding-bottom: calc(1.3rem + env(safe-area-inset-bottom)); }
+      #toast { bottom: 90px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>명장면 속 전 세계 성지 122선</h1>
+    <div class="progress" title="방문한 성지 수">
+      <div class="progress-bar"><span id="progressFill"></span></div>
+      <span id="progressText">0 / 0</span>
+    </div>
+    <input type="text" id="searchInput" class="search-input" placeholder="작품, 장소, 국가 검색... ( / )">
+    <div class="controls">
+      <button id="diaryBtn" class="btn-control">내 일기</button>
+      <button id="backupBtn" class="btn-control">백업<span class="dot" id="backupDot"></span></button>
+      <button id="darkToggleBtn" class="btn-control">다크 모드</button>
+    </div>
+  </header>
+
+  <div class="filter-bar" id="filterBar">
+    <div class="chip-group" data-group="status">
+      <button class="chip active" data-value="all">전체</button>
+      <button class="chip" data-value="fav">★ 찜</button>
+      <button class="chip" data-value="visited">✔ 방문</button>
+      <button class="chip" data-value="todo">미방문</button>
+    </div>
+    <span class="chip-sep"></span>
+    <div class="chip-group" data-group="cat">
+      <button class="chip active" data-value="all">모든 종류</button>
+      <button class="chip" data-value="애니메이션">애니</button>
+      <button class="chip" data-value="영화">영화</button>
+    </div>
+    <span class="chip-sep"></span>
+    <select id="countrySelect" aria-label="국가 선택"><option value="all">전체 국가</option></select>
+    <select id="sortSelect" aria-label="정렬">
+      <option value="id">번호순</option>
+      <option value="name">가나다순</option>
+      <option value="country">국가별</option>
+      <option value="fav">찜 우선</option>
+      <option value="todo">미방문 우선</option>
+      <option value="near">내 위치에서 가까운 순</option>
+    </select>
+  </div>
+
+  <div class="main-container view-list" id="mainContainer">
+    <div class="list-section" id="listSection"></div>
+    <div class="right-section">
+      <div class="map-container" id="mapContainer">
+        <iframe id="mapFrame" title="장소 지도"></iframe>
+        <div class="map-offline" id="mapOffline">인터넷에 연결되어 있지 않아<br>지도를 표시할 수 없어요.<br>연결되면 자동으로 나타납니다.</div>
+        <a class="map-open" id="mapOpenLink" target="_blank" rel="noopener">구글지도에서 열기 ↗</a>
+      </div>
+      <div class="detail-section" id="detailSection"></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <button data-view="list" class="active">목록</button>
+    <button data-view="detail">지도 · 상세</button>
+  </nav>
+
+  <div class="modal" id="backupModal">
+    <div class="sheet" role="dialog" aria-label="백업과 복원">
+      <h2>기록 백업 / 복원 <button class="btn-close" id="backupClose" aria-label="닫기">×</button></h2>
+      <p>찜, 방문 기록, 일기와 사진은 이 브라우저 안에만 저장됩니다. 브라우저 데이터를 지우거나 기기를 바꾸면 사라지므로 백업 파일을 따로 보관하세요.</p>
+      <div class="stat" id="backupStat"></div>
+
+      <h3>1. 백업 파일 저장</h3>
+      <p>폰에서는 공유 창이 열립니다. 구글 드라이브, 카카오톡 '나에게', 이메일 등에 저장해 두세요.</p>
+      <label class="check-row"><input type="checkbox" id="withPhotos" checked> 일기 사진 포함 <span id="photoSize" style="color:var(--text-sub)"></span></label>
+      <div class="btn-row"><button class="act primary" id="exportBtn">백업 파일 저장</button></div>
+
+      <h3>2. 백업 파일 불러오기</h3>
+      <p>현재 기록에 합쳐집니다. 기존 기록은 지워지지 않습니다.</p>
+      <div class="btn-row"><button class="act" id="importBtn">백업 파일 선택</button></div>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+
+      <h3>여행 계획용 (찜한 성지)</h3>
+      <p>국가 필터로 범위를 좁힌 뒤 쓰면 편해요. 루트는 현재 목록의 찜한 곳을 최대 11곳까지 구글지도 길찾기로 엽니다.</p>
+      <div class="btn-row">
+        <button class="act primary" id="routeBtn">구글지도 루트 열기</button>
+        <button class="act" id="copyFavBtn">텍스트 복사</button>
+        <button class="act" id="csvFavBtn">CSV 저장</button>
+      </div>
+      <div class="btn-row"><button class="act" id="aboutBtn">앱 정보 · 사진 출처</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="diaryModal">
+    <div class="sheet" role="dialog" aria-label="내 일기">
+      <h2>내 일기 <button class="btn-close" id="diaryClose" aria-label="닫기">×</button></h2>
+      <div id="diaryAllList"></div>
+    </div>
+  </div>
+
+  <div id="lightbox">
+    <img id="lbImg" alt="">
+    <button class="lb-btn" id="lbClose" aria-label="닫기">×</button>
+    <button class="lb-btn" id="lbPrev" aria-label="이전">‹</button>
+    <button class="lb-btn" id="lbNext" aria-label="다음">›</button>
+    <div id="lbCount"></div>
+  </div>
+  <input type="file" id="photoFile" accept="image/*" multiple hidden>
+
+  <div class="modal" id="stampModal">
+    <div class="sheet" role="dialog" aria-label="국가별 도장판">
+      <h2>국가별 도장판 <button class="btn-close" id="stampClose" aria-label="닫기">×</button></h2>
+      <p id="stampSummary"></p>
+      <div class="stamp-grid" id="stampGrid"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="aboutModal">
+    <div class="sheet" role="dialog" aria-label="앱 정보">
+      <h2>앱 정보 <button class="btn-close" id="aboutClose" aria-label="닫기">×</button></h2>
+      <p>영화와 애니메이션 속 장면의 배경이 된 곳, 촬영지, 모티브로 알려진 곳 122곳을 모아 찜하고 방문 기록과 일기를 남기는 앱입니다.</p>
+      <h3>사진 출처</h3>
+      <p>장소 사진은 위키미디어 커먼즈 등에 공개된 이미지입니다. 각 사진의 작성자와 라이선스는 상세 화면의 사진 아래에 표시되며, 눌러서 원본 페이지를 볼 수 있습니다. 작품명, 상표, 장면의 권리는 각 권리자에게 있습니다.</p>
+      <h3>작품 정보</h3>
+      <p>작품과 장소의 연결은 공개된 정보에 근거하며, "알려져 있다"고 표시한 곳은 공식 확인이 아닌 팬들 사이의 통설일 수 있습니다. 실제 방문 전에 운영 여부와 출입 규칙을 확인하세요.</p>
+      <h3>지도와 위치</h3>
+      <p>지도는 구글 지도를 사용합니다. 현재 위치는 '가까운 순' 정렬에만 쓰이며 기기 밖으로 전송하거나 저장하지 않습니다.</p>
+      <div class="btn-row"><a class="act" href="privacy-policy.html" target="_blank" rel="noopener">개인정보처리방침</a></div>
+    </div>
+  </div>
+
+  <div id="updateBar">새 버전이 준비됐어요 <button id="updateBtn">새로고침</button></div>
+
+  <div id="toast"></div>
+
+  <script src="spots.js"></script>
+  <script>
+    const PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#3a4a63"/><path d="M50 80 35 52a17 17 0 1 1 30 0z" fill="#fff" opacity=".85"/><circle cx="50" cy="40" r="7" fill="#3a4a63"/></svg>');
+    function handleImgError(image) {
+      image.onerror = null;
+      image.src = PLACEHOLDER;
+    }
+
+    const spots = window.SPOTS, COORDS = window.COORDS, CREDITS = window.CREDITS || {};
+
+    // ---------- 저장소 ----------
+    const KEYS = {
+      fav: 'spotFavorites100Full', dark: 'spotDarkMode', visited: 'spotVisited', notes: 'spotNotes',
+      lastBackup: 'spotLastBackup', dirty: 'spotDirty', diaryMig: 'spotDiaryMigrated'
+    };
+    let storageWarned = false;
+    const store = {
+      get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+      set(k, v) {
+        try { localStorage.setItem(k, JSON.stringify(v)); return true; }
+        catch (e) {
+          if (!storageWarned) { storageWarned = true; toast('이 브라우저에서는 기록을 저장할 수 없어요. 백업 파일을 꼭 저장하세요.'); }
+          return false;
+        }
+      }
+    };
+
+    spots.forEach(s => { s.country = s.loc.split(' ')[0]; });
+    const spotById = new Map(spots.map(s => [s.id, s]));
+    const isPlainObj = v => v && typeof v === 'object' && !Array.isArray(v);
+
+    let favorites = (store.get(KEYS.fav, []) || []).filter(id => spotById.has(id));
+    let visited = store.get(KEYS.visited, {}); if (!isPlainObj(visited)) visited = {};
+    let notes = store.get(KEYS.notes, {}); if (!isPlainObj(notes)) notes = {};
+    const storedDark = store.get(KEYS.dark, null);
+    let isDarkMode = storedDark === null ? window.matchMedia('(prefers-color-scheme: dark)').matches : storedDark === true;
+
+    const filters = { status: 'all', cat: 'all', country: 'all', sort: 'id' };
+    let selectedSpotId = spots[0].id;
+    let currentList = [];
+
+    const $ = id => document.getElementById(id);
+    const listSection = $('listSection'), detailSection = $('detailSection'), mapFrame = $('mapFrame');
+    const searchInput = $('searchInput'), darkToggleBtn = $('darkToggleBtn'), mainContainer = $('mainContainer');
+    const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
+    let toastTimer;
+    function toast(msg) {
+      const t = $('toast'); t.textContent = msg; t.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // ---------- 다크 모드 ----------
+    function applyDarkMode(dark) {
+      document.body.classList.toggle('dark-mode', dark);
+      darkToggleBtn.innerText = dark ? '라이트 모드' : '다크 모드';
+      store.set(KEYS.dark, dark);
+    }
+    applyDarkMode(isDarkMode);
+    darkToggleBtn.addEventListener('click', () => { isDarkMode = !isDarkMode; applyDarkMode(isDarkMode); });
+
+    // ---------- 기록 저장 ----------
+    function requestPersist() {
+      try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    }
+    function markDirty() { store.set(KEYS.dirty, true); updateBackupDot(); requestPersist(); }
+    function saveFav() { store.set(KEYS.fav, favorites); markDirty(); }
+    function saveVisited() { store.set(KEYS.visited, visited); markDirty(); }
+
+    function afterRecordChange(id) {
+      updateProgress();
+      renderList();
+      if (id === selectedSpotId) renderDetail();
+    }
+    function toggleFavorite(id) {
+      favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
+      saveFav(); afterRecordChange(id);
+    }
+    function toggleVisited(id) {
+      if (id in visited) delete visited[id]; else { visited[id] = today(); toast('방문 완료! 도장 쾅 ✔'); }
+      saveVisited(); afterRecordChange(id);
+    }
+    function updateProgress() {
+      const v = Object.keys(visited).length, total = spots.length;
+      $('progressText').textContent = v + ' / ' + total;
+      $('progressFill').style.width = (v / total * 100) + '%';
+    }
+
+    // ---------- 필터 · 정렬 ----------
+    function getFiltered() {
+      const q = searchInput.value.trim().toLowerCase();
+      const list = spots.filter(s => {
+        if (q && !(s.name + ' ' + s.work + ' ' + s.loc + ' ' + s.cat).toLowerCase().includes(q)) return false;
+        if (filters.cat !== 'all' && s.cat !== filters.cat) return false;
+        if (filters.country !== 'all' && s.country !== filters.country) return false;
+        if (filters.status === 'fav' && !favorites.includes(s.id)) return false;
+        if (filters.status === 'visited' && !(s.id in visited)) return false;
+        if (filters.status === 'todo' && (s.id in visited)) return false;
+        return true;
+      });
+      const ko = (a, b) => a.localeCompare(b, 'ko');
+      if (filters.sort === 'name') list.sort((a, b) => ko(a.name, b.name));
+      else if (filters.sort === 'country') list.sort((a, b) => ko(a.country, b.country) || a.id - b.id);
+      else if (filters.sort === 'fav') list.sort((a, b) => (favorites.includes(b.id) - favorites.includes(a.id)) || a.id - b.id);
+      else if (filters.sort === 'todo') list.sort((a, b) => ((a.id in visited) - (b.id in visited)) || a.id - b.id);
+      else if (filters.sort === 'near' && userPos) list.sort((a, b) => distKm(a) - distKm(b));
+      return list;
+    }
+
+    function buildCountrySelect() {
+      const counts = {};
+      spots.forEach(s => { counts[s.country] = (counts[s.country] || 0) + 1; });
+      Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b, 'ko')).forEach(c => {
+        const o = document.createElement('option'); o.value = c; o.textContent = c + ' (' + counts[c] + ')';
+        $('countrySelect').appendChild(o);
+      });
+    }
+
+    function applyFilters() {
+      const prev = selectedSpotId;
+      renderList();
+      if (selectedSpotId !== prev) select(selectedSpotId);
+    }
+
+    // ---------- 목록 ----------
+    function renderList() {
+      const keep = listSection.scrollTop;
+      currentList = getFiltered();
+      listSection.innerHTML = '';
+
+      if (currentList.length === 0) {
+        listSection.innerHTML = '<div class="no-results">조건에 맞는 성지가 없습니다.</div>';
+        return;
+      }
+      if (!currentList.some(s => s.id === selectedSpotId)) selectedSpotId = currentList[0].id;
+
+      const frag = document.createDocumentFragment();
+      const count = document.createElement('div');
+      count.className = 'list-count';
+      count.textContent = currentList.length + '곳';
+      frag.appendChild(count);
+
+      currentList.forEach(spot => {
+        const isFav = favorites.includes(spot.id);
+        const card = document.createElement('div');
+        card.className = 'card' + (spot.id === selectedSpotId ? ' selected' : '') + (spot.id in visited ? ' visited' : '');
+        card.dataset.id = spot.id;
+        card.innerHTML = `
+          <img src="${spot.thumb}" alt="${spot.name}" class="thumbnail" loading="lazy" onerror="handleImgError(this)">
+          <div class="card-content">
+            <span class="card-cat">${spot.cat} | ${spot.work}</span>
+            <div class="card-title">${spot.id}. ${spot.name}</div>
+            <div class="card-meta">위치: ${spot.loc}${distText(spot)}</div>
+          </div>
+          <button class="btn-star ${isFav ? 'active' : ''}" data-id="${spot.id}" aria-label="찜하기">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </button>`;
+        frag.appendChild(card);
+      });
+      listSection.appendChild(frag);
+      listSection.scrollTop = keep;
+    }
+
+    listSection.addEventListener('click', e => {
+      const star = e.target.closest('.btn-star');
+      if (star) { e.stopPropagation(); toggleFavorite(+star.dataset.id); return; }
+      const card = e.target.closest('.card');
+      if (card) select(+card.dataset.id, { openDetail: true });
+    });
+
+    function highlightCard(scroll) {
+      listSection.querySelectorAll('.card').forEach(c => {
+        const on = +c.dataset.id === selectedSpotId;
+        c.classList.toggle('selected', on);
+        if (on && scroll) c.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      });
+    }
+
+    // ---------- 선택 ----------
+    function select(id, opts = {}) {
+      const spot = spotById.get(id);
+      if (!spot) return;
+      if (editor && editor.spotId !== id) {
+        if (editorDirty() && !confirm('작성 중인 일기를 버리고 이동할까요?')) { highlightCard(false); return; }
+        discardEditor();
+      }
+      selectedSpotId = id;
+      highlightCard(opts.scroll);
+      try { history.replaceState(null, '', '#spot=' + id); } catch (e) {}
+      renderDetail();
+      syncMap();
+      if (opts.openDetail) setMobileView('detail');
+    }
+
+    function selectByOffset(delta) {
+      if (!currentList.length) return;
+      const i = currentList.findIndex(s => s.id === selectedSpotId);
+      const next = currentList[Math.min(currentList.length - 1, Math.max(0, i + delta))];
+      select(next.id, { scroll: true });
+    }
+
+    // ---------- 같은 작품 묶기 ----------
+    function workKeys(work) {
+      return work.split('/').map(t => {
+        t = t.replace(/\(.*?\)/g, '').split(':')[0].trim().replace(/\s*시리즈$/, '');
+        if (t.startsWith('해리 포터')) return '해리 포터';
+        if (t.startsWith('007')) return '007';
+        return t;
+      }).filter(Boolean);
+    }
+    spots.forEach(s => { s.keys = workKeys(s.work); });
+    const sharesWork = (a, b) => a.keys.some(k => b.keys.includes(k));
+
+    // ---------- 일기 (사진은 IndexedDB에 저장) ----------
+    const MAX_PHOTOS = 12, MAX_SIDE = 1280;
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+
+    const idb = {
+      db: null, persistent: false, mem: { entries: new Map(), photos: new Map() },
+      open() {
+        return new Promise(resolve => {
+          try {
+            const rq = indexedDB.open('spotDiary', 1);
+            rq.onupgradeneeded = () => { rq.result.createObjectStore('entries', { keyPath: 'id' }); rq.result.createObjectStore('photos', { keyPath: 'id' }); };
+            rq.onsuccess = () => { this.db = rq.result; this.persistent = true; resolve(true); };
+            rq.onerror = rq.onblocked = () => resolve(false);
+          } catch (e) { resolve(false); }
+        });
+      },
+      run(name, mode, op) {
+        return new Promise((resolve, reject) => {
+          const t = this.db.transaction(name, mode);
+          const r = op(t.objectStore(name));
+          t.oncomplete = () => resolve(r ? r.result : undefined);
+          t.onerror = t.onabort = () => reject(t.error);
+        });
+      },
+      async getAll(s) { return this.persistent ? this.run(s, 'readonly', o => o.getAll()) : [...this.mem[s].values()]; },
+      async get(s, id) { return this.persistent ? this.run(s, 'readonly', o => o.get(id)) : this.mem[s].get(id); },
+      async put(s, obj) { if (this.persistent) return this.run(s, 'readwrite', o => o.put(obj)); this.mem[s].set(obj.id, obj); },
+      async del(s, id) { if (this.persistent) return this.run(s, 'readwrite', o => o.delete(id)); this.mem[s].delete(id); }
+    };
+
+    let diary = [], diaryReady = false, editor = null;
+    const photoUrls = new Map();
+
+    async function getPhotoUrl(id) {
+      if (photoUrls.has(id)) return photoUrls.get(id);
+      const rec = await idb.get('photos', id);
+      if (!rec) return null;
+      const u = URL.createObjectURL(rec.blob); photoUrls.set(id, u); return u;
+    }
+    const entriesOf = spotId => diary.filter(e => e.spotId === spotId).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+    const photoCount = () => diary.reduce((n, e) => n + e.photos.length, 0);
+
+    async function loadDiary() {
+      const ok = await idb.open();
+      if (!ok) toast('이 환경에서는 일기가 저장되지 않아요. (시크릿 모드 등) 새로고침하면 사라집니다.');
+      diary = await idb.getAll('entries');
+      // 예전 메모를 첫 일기로 옮김 (한 번만)
+      if (ok && !store.get(KEYS.diaryMig, false)) {
+        for (const [k, v] of Object.entries(notes)) {
+          const id = +k;
+          if (!spotById.has(id) || !v || !v.memo) continue;
+          const t = v.updatedAt || Date.now();
+          const e = { id: newId(), spotId: id, date: visited[id] || today(), text: String(v.memo).slice(0, 5000), photos: [], createdAt: t, updatedAt: t };
+          await idb.put('entries', e); diary.push(e);
+        }
+        store.set(KEYS.diaryMig, true);
+      }
+      diaryReady = true;
+      renderDiary(); updateDiaryBtn();
+    }
+    function updateDiaryBtn() { $('diaryBtn').textContent = diary.length ? `내 일기 (${diary.length})` : '내 일기'; }
+
+    async function resizeImage(file) {
+      let src, w, h;
+      try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); w = src.width; h = src.height; }
+      catch (e) {
+        src = await new Promise((res, rej) => {
+          const img = new Image(), u = URL.createObjectURL(file);
+          img.onload = () => { URL.revokeObjectURL(u); res(img); };
+          img.onerror = () => { URL.revokeObjectURL(u); rej(new Error('decode')); };
+          img.src = u;
+        });
+        w = src.naturalWidth; h = src.naturalHeight;
+      }
+      const k = Math.min(1, MAX_SIDE / Math.max(w, h)), cw = Math.round(w * k), ch = Math.round(h * k);
+      const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cw, ch); ctx.drawImage(src, 0, 0, cw, ch);
+      if (src.close) src.close();
+      return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('encode')), 'image/jpeg', 0.82));
+    }
+
+    const editorDirty = () => !!editor && (editor.text.trim() !== '' || editor.photos.length > 0);
+    function discardEditor() {
+      if (editor) editor.photos.forEach(p => { if (p.isNew) URL.revokeObjectURL(p.url); });
+      editor = null;
+    }
+    async function openEditor(entryId) {
+      const spotId = selectedSpotId;
+      if (editorDirty() && editor.spotId === spotId && !confirm('작성 중인 내용을 버리고 새로 열까요?')) return;
+      discardEditor();
+      if (entryId) {
+        const e = diary.find(x => x.id === entryId); if (!e) return;
+        editor = { entryId, spotId, date: e.date, text: e.text, photos: [] };
+        for (const pid of e.photos) {
+          const url = await getPhotoUrl(pid), rec = url && await idb.get('photos', pid);
+          if (rec) editor.photos.push({ id: pid, blob: rec.blob, url, isNew: false });
+        }
+      } else {
+        editor = { entryId: null, spotId, date: visited[spotId] || today(), text: '', photos: [] };
+      }
+      renderDiary();
+      const ta = $('diaryText'); if (ta) { ta.focus(); ta.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+    }
+    function cancelEditor() {
+      if (editorDirty() && !confirm('작성 중인 내용을 버릴까요?')) return;
+      discardEditor(); renderDiary();
+    }
+    async function addPhotos(files) {
+      if (!editor) { toast('먼저 [＋ 일기 쓰기]를 눌러주세요.'); return; }
+      const room = MAX_PHOTOS - editor.photos.length;
+      if (files.length > room) toast(`사진은 일기 하나에 최대 ${MAX_PHOTOS}장이에요.`);
+      for (const f of files.slice(0, Math.max(0, room))) {
+        try { const blob = await resizeImage(f); editor.photos.push({ id: newId(), blob, url: URL.createObjectURL(blob), isNew: true }); }
+        catch (e) { toast('읽을 수 없는 사진이 있어요: ' + (f.name || '')); }
+      }
+      renderDiary();
+    }
+    function removeEditorPhoto(pid) {
+      const i = editor.photos.findIndex(p => p.id === pid); if (i < 0) return;
+      if (editor.photos[i].isNew) URL.revokeObjectURL(editor.photos[i].url);
+      editor.photos.splice(i, 1); renderDiary();
+    }
+    async function saveEditor() {
+      if (!editor || editor.saving) return;
+      const text = editor.text.trim();
+      if (!text && !editor.photos.length) { toast('글이나 사진을 하나는 넣어주세요.'); return; }
+      editor.saving = true;
+      try {
+        const old = editor.entryId ? diary.find(x => x.id === editor.entryId) : null;
+        const keep = new Set(editor.photos.map(p => p.id));
+        for (const p of editor.photos) if (p.isNew) await idb.put('photos', { id: p.id, blob: p.blob });
+        if (old) for (const pid of old.photos) if (!keep.has(pid)) { await idb.del('photos', pid); photoUrls.delete(pid); }
+        const now = Date.now();
+        const entry = { id: old ? old.id : newId(), spotId: editor.spotId, date: editor.date || today(), text: text.slice(0, 5000),
+          photos: editor.photos.map(p => p.id), createdAt: old ? old.createdAt : now, updatedAt: now };
+        await idb.put('entries', entry);
+        diary = diary.filter(x => x.id !== entry.id).concat(entry);
+        editor.photos.forEach(p => { if (p.isNew) photoUrls.set(p.id, p.url); });
+        editor = null;
+        markDirty(); renderDiary(); updateDiaryBtn();
+        toast('일기를 저장했어요.');
+      } catch (e) {
+        editor.saving = false;
+        toast('저장하지 못했어요. 저장 공간이 부족할 수 있어요.');
+      }
+    }
+    async function deleteEntry(id) {
+      const e = diary.find(x => x.id === id); if (!e) return;
+      if (!confirm('이 일기와 사진을 삭제할까요? 되돌릴 수 없어요.')) return;
+      try {
+        for (const pid of e.photos) { await idb.del('photos', pid); const u = photoUrls.get(pid); if (u) URL.revokeObjectURL(u); photoUrls.delete(pid); }
+        await idb.del('entries', id);
+        diary = diary.filter(x => x.id !== id);
+        markDirty(); renderDiary(); updateDiaryBtn();
+      } catch (err) { toast('삭제하지 못했어요.'); }
+    }
+
+    function entryHtml(e) {
+      return `<div class="diary-entry">
+        <div class="diary-head"><b>${e.date}</b><span class="diary-actions">
+          <button class="link-btn" data-act="diary-edit" data-eid="${e.id}">수정</button>
+          <button class="link-btn danger" data-act="diary-del" data-eid="${e.id}">삭제</button></span></div>
+        ${e.text ? `<div class="diary-text">${esc(e.text)}</div>` : ''}
+        ${e.photos.length ? `<div class="photo-grid">${e.photos.map((p, i) => `<img data-photo="${p}" data-act="photo-view" data-eid="${e.id}" data-idx="${i}" alt="일기 사진">`).join('')}</div>` : ''}
+      </div>`;
+    }
+    function editorHtml() {
+      return `<div class="diary-entry editing">
+        <div class="memo-row">날짜 <input type="date" id="diaryDate" value="${editor.date}" max="${today()}"></div>
+        <textarea id="diaryText" rows="5" maxlength="5000" placeholder="이곳에서 어땠나요? 날씨, 느낀 점, 다음에 갈 사람을 위한 팁을 자유롭게 적어보세요."></textarea>
+        <div class="photo-grid">
+          ${editor.photos.map(p => `<div class="photo-wrap"><img src="${p.url}" alt=""><button class="photo-rm" data-act="photo-rm" data-pid="${p.id}" aria-label="사진 삭제">×</button></div>`).join('')}
+          ${editor.photos.length < MAX_PHOTOS ? '<button class="photo-add" data-act="photo-add" type="button">＋<span>사진</span></button>' : ''}
+        </div>
+        <div class="btn-row"><button class="act primary" data-act="diary-save">저장</button><button class="act" data-act="diary-cancel">취소</button></div>
+      </div>`;
+    }
+    function loadPhotoImgs(root) {
+      root.querySelectorAll('img[data-photo]').forEach(img => getPhotoUrl(img.dataset.photo).then(u => { if (u) img.src = u; }));
+    }
+    function renderDiary() {
+      const area = $('diaryArea'); if (!area) return;
+      if (!diaryReady) { area.innerHTML = '<div class="diary-empty">일기를 불러오는 중...</div>'; return; }
+      const editing = !!editor && editor.spotId === selectedSpotId;
+      let html = editing ? editorHtml() : '';
+      html += entriesOf(selectedSpotId).filter(e => !(editing && editor.entryId === e.id)).map(entryHtml).join('');
+      area.innerHTML = html || '<div class="diary-empty">아직 일기가 없어요. 다녀오셨다면 첫 일기를 남겨보세요.</div>';
+      if (editing) $('diaryText').value = editor.text;
+      loadPhotoImgs(area);
+    }
+
+    // 사진 뷰어
+    let lb = null;
+    async function openLightbox(entryId, idx) {
+      const e = diary.find(x => x.id === entryId); if (!e) return;
+      const urls = (await Promise.all(e.photos.map(getPhotoUrl))).filter(Boolean);
+      if (!urls.length) return;
+      lb = { urls, i: Math.min(idx, urls.length - 1) }; showLb();
+    }
+    function showLb() {
+      $('lbImg').src = lb.urls[lb.i]; $('lbCount').textContent = `${lb.i + 1} / ${lb.urls.length}`;
+      $('lbPrev').style.display = $('lbNext').style.display = lb.urls.length > 1 ? '' : 'none';
+      $('lightbox').classList.add('show');
+    }
+    function closeLb() { $('lightbox').classList.remove('show'); lb = null; }
+    function stepLb(d) { if (lb) { lb.i = (lb.i + d + lb.urls.length) % lb.urls.length; showLb(); } }
+    $('lbClose').addEventListener('click', closeLb);
+    $('lbPrev').addEventListener('click', () => stepLb(-1));
+    $('lbNext').addEventListener('click', () => stepLb(1));
+    $('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) closeLb(); });
+    let touchX = null;
+    $('lightbox').addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+    $('lightbox').addEventListener('touchend', e => {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+      if (Math.abs(dx) > 50) stepLb(dx < 0 ? 1 : -1);
+    });
+    $('photoFile').addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; addPhotos(files); });
+
+    // 일기 모아보기
+    function openDiaryAll() {
+      const list = [...diary].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+      $('diaryAllList').innerHTML = list.map(e => {
+        const s = spotById.get(e.spotId);
+        return `<div class="da-item" data-spot="${e.spotId}">
+          <div class="da-thumb">${e.photos[0] ? `<img data-photo="${e.photos[0]}" alt="">` : '📝'}</div>
+          <div class="da-body"><div class="da-title">${esc(s.name)}<span>${e.date}${e.photos.length ? ' · 사진 ' + e.photos.length : ''}</span></div>
+          <div class="da-text">${esc(e.text.slice(0, 90)) || '(사진만 있는 일기)'}</div></div></div>`;
+      }).join('') || '<div class="diary-empty">아직 일기가 없어요. 성지 상세 화면에서 [＋ 일기 쓰기]를 눌러 시작해 보세요.</div>';
+      loadPhotoImgs($('diaryAllList'));
+      $('diaryModal').classList.add('show');
+    }
+    function closeDiaryAll() { $('diaryModal').classList.remove('show'); }
+    $('diaryBtn').addEventListener('click', openDiaryAll);
+    $('diaryClose').addEventListener('click', closeDiaryAll);
+    $('diaryModal').addEventListener('click', e => {
+      if (e.target === $('diaryModal')) { closeDiaryAll(); return; }
+      const it = e.target.closest('.da-item'); if (!it) return;
+      const id = +it.dataset.spot;
+      closeDiaryAll();
+      if (!currentList.some(s => s.id === id)) resetFilters();
+      select(id, { scroll: true, openDetail: true });
+    });
+
+    // ---------- 상세 ----------
+    const mapsOpenUrl = s => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(s.query);
+    const mapsDirUrl = s => 'https://www.google.com/maps/dir/?api=1&destination=' + (COORDS[s.id] ? COORDS[s.id].join(',') : encodeURIComponent(s.query));
+
+    function renderDetail() {
+      const spot = spotById.get(selectedSpotId);
+      if (!spot) return;
+      const isFav = favorites.includes(spot.id), isVisited = spot.id in visited;
+      const related = spots.filter(s => s.id !== spot.id && sharesWork(s, spot));
+
+      detailSection.innerHTML = `
+        <div class="detail-header">
+          <span class="detail-badge">${spot.cat}</span>${isVisited ? '<span class="detail-badge visit">✔ 방문 완료</span>' : ''}
+          <div class="detail-title">${spot.id}. ${spot.name}</div>
+          <div class="detail-work">작품명: ${spot.work}</div>
+          <div class="detail-loc">위치: ${spot.loc}</div>
+          <div class="action-row">
+            <button class="act ${isFav ? 'on-fav' : ''}" data-act="fav">${isFav ? '★ 찜함' : '☆ 찜하기'}</button>
+            <button class="act ${isVisited ? 'on-visit' : ''}" data-act="visit">${isVisited ? '✔ 방문함' : '□ 방문 체크'}</button>
+            <a class="act" href="${mapsDirUrl(spot)}" target="_blank" rel="noopener">길찾기</a>
+            <a class="act" href="${mapsOpenUrl(spot)}" target="_blank" rel="noopener">구글지도 열기</a>
+            <button class="act" data-act="share">공유</button>
+          </div>
+        </div>
+        <div class="detail-body">
+          <div class="detail-imgwrap">
+            <img src="${spot.thumb}" alt="${spot.name}" class="detail-img" onerror="handleImgError(this)">
+            ${creditHtml(spot)}
+          </div>
+          <div class="detail-desc">${spot.desc}</div>
+        </div>
+        ${related.length ? `<div class="sub-title">같은 작품의 다른 성지</div>
+          <div class="related">${related.map(r => `<button class="chip" data-rel="${r.id}">${r.name}</button>`).join('')}</div>` : ''}
+        <div class="sub-title row">내 일기 <button class="act small primary" data-act="diary-new">＋ 일기 쓰기</button></div>
+        ${isVisited ? `<div class="memo-row">방문일 <input type="date" id="visitDate" value="${visited[spot.id]}" max="${today()}"></div>` : ''}
+        <div id="diaryArea"></div>`;
+      renderDiary();
+    }
+
+    detailSection.addEventListener('click', e => {
+      const rel = e.target.closest('[data-rel]');
+      if (rel) {
+        const id = +rel.dataset.rel;
+        if (!currentList.some(s => s.id === id)) resetFilters();
+        select(id, { scroll: true });
+        return;
+      }
+      const btn = e.target.closest('[data-act]');
+      if (!btn) return;
+      const act = btn.dataset.act, spot = spotById.get(selectedSpotId);
+      if (act === 'fav') toggleFavorite(spot.id);
+      else if (act === 'visit') toggleVisited(spot.id);
+      else if (act === 'share') shareSpot(spot);
+      else if (act === 'diary-new') { if (editor && editor.spotId === spot.id) $('diaryText') && $('diaryText').focus(); else openEditor(null); }
+      else if (act === 'diary-edit') openEditor(btn.dataset.eid);
+      else if (act === 'diary-del') deleteEntry(btn.dataset.eid);
+      else if (act === 'diary-save') saveEditor();
+      else if (act === 'diary-cancel') cancelEditor();
+      else if (act === 'photo-add') $('photoFile').click();
+      else if (act === 'photo-rm') removeEditorPhoto(btn.dataset.pid);
+      else if (act === 'photo-view') openLightbox(btn.dataset.eid, +btn.dataset.idx);
+    });
+    detailSection.addEventListener('input', e => { if (e.target.id === 'diaryText' && editor) editor.text = e.target.value; });
+    detailSection.addEventListener('change', e => {
+      if (e.target.id === 'diaryDate' && editor && /^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) editor.date = e.target.value;
+      if (e.target.id === 'visitDate' && /^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) { visited[selectedSpotId] = e.target.value; saveVisited(); }
+    });
+
+    function resetFilters() {
+      filters.status = 'all'; filters.cat = 'all'; filters.country = 'all';
+      searchInput.value = '';
+      document.querySelectorAll('.chip-group').forEach(g => g.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.value === 'all')));
+      $('countrySelect').value = 'all';
+      renderList();
+    }
+
+    async function shareSpot(spot) {
+      const text = `${spot.name} (${spot.work})\n${spot.loc}\n${mapsOpenUrl(spot)}`;
+      try {
+        if (navigator.share) { await navigator.share({ title: spot.name, text }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+      copyText(text).then(ok => toast(ok ? '성지 정보를 복사했어요.' : '복사에 실패했어요.'));
+    }
+
+    async function copyText(text) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+      try {
+        const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+      } catch (e) { return false; }
+    }
+
+    // ---------- 지도 (구글 지도) ----------
+    function syncMap() {
+      const spot = spotById.get(selectedSpotId);
+      if (!spot) return;
+      $('mapOpenLink').href = mapsOpenUrl(spot);
+      if (mapFrame.dataset.q === spot.query) return;
+      mapFrame.dataset.q = spot.query;
+      mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(spot.query)}&z=15&output=embed`;
+    }
+    function updateOnlineState() { $('mapOffline').classList.toggle('show', !navigator.onLine); }
+    window.addEventListener('online', () => { updateOnlineState(); const s = spotById.get(selectedSpotId); if (s) { mapFrame.dataset.q = ''; syncMap(); } });
+    window.addEventListener('offline', updateOnlineState);
+    updateOnlineState();
+
+    // ---------- 내 위치에서 가까운 순 ----------
+    let userPos = null;
+    function distKm(s) {
+      const c = COORDS[s.id]; if (!c || !userPos) return Infinity;
+      const R = 6371, rad = Math.PI / 180;
+      const dLat = (c[0] - userPos.lat) * rad, dLng = (c[1] - userPos.lng) * rad;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(userPos.lat * rad) * Math.cos(c[0] * rad) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+    function distText(s) {
+      if (!userPos) return '';
+      const d = distKm(s); if (!isFinite(d)) return '';
+      return ' · 📍 ' + (d < 1 ? Math.round(d * 1000) + 'm' : d < 100 ? d.toFixed(1) + 'km' : Math.round(d).toLocaleString() + 'km');
+    }
+    function requestLocation() {
+      if (!navigator.geolocation) { toast('이 기기에서는 위치를 사용할 수 없어요.'); resetSort(); return; }
+      toast('현재 위치를 확인하는 중...');
+      navigator.geolocation.getCurrentPosition(pos => {
+        userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        applyFilters();
+      }, () => { toast('위치 권한이 필요해요. 설정에서 허용해 주세요.'); resetSort(); }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
+    }
+    function resetSort() { filters.sort = 'id'; $('sortSelect').value = 'id'; applyFilters(); }
+
+    // ---------- 사진 출처 ----------
+    function creditHtml(s) {
+      const c = CREDITS[s.id]; if (!c) return '';
+      const who = c.a ? esc(c.a) : '작성자 미상';
+      return `<div class="photo-credit">사진: ${who} · <a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.l || '출처')}</a></div>`;
+    }
+
+    // ---------- 국가별 도장판 ----------
+    function openStamps() {
+      const by = {};
+      spots.forEach(s => { const o = by[s.country] || (by[s.country] = { t: 0, v: 0 }); o.t++; if (s.id in visited) o.v++; });
+      const names = Object.keys(by).sort((a, b) => by[b].v - by[a].v || by[b].t - by[a].t || a.localeCompare(b, 'ko'));
+      const stamped = names.filter(n => by[n].v > 0).length, done = names.filter(n => by[n].v === by[n].t).length;
+      $('stampSummary').textContent = `방문한 나라 ${stamped} / ${names.length}곳 · 모두 정복한 나라 ${done}곳. 도장을 누르면 그 나라 성지만 보여줘요.`;
+      $('stampGrid').innerHTML = names.map(n => `<button class="stamp ${by[n].v === by[n].t ? 'done' : by[n].v ? 'some' : ''}" data-country="${esc(n)}">${esc(n)}<b>${by[n].v}/${by[n].t}</b></button>`).join('');
+      $('stampModal').classList.add('show');
+    }
+    function closeStamps() { $('stampModal').classList.remove('show'); }
+    $('stampClose').addEventListener('click', closeStamps);
+    document.querySelector('.progress').addEventListener('click', openStamps);
+    $('stampModal').addEventListener('click', e => {
+      if (e.target === $('stampModal')) { closeStamps(); return; }
+      const st = e.target.closest('.stamp'); if (!st) return;
+      filters.country = st.dataset.country; $('countrySelect').value = st.dataset.country;
+      closeStamps(); applyFilters();
+    });
+    $('aboutClose').addEventListener('click', () => $('aboutModal').classList.remove('show'));
+    $('aboutModal').addEventListener('click', e => { if (e.target === $('aboutModal')) $('aboutModal').classList.remove('show'); });
+
+    // ---------- 모바일 화면 전환 ----------
+    function setMobileView(view) {
+      mainContainer.classList.toggle('view-list', view === 'list');
+      mainContainer.classList.toggle('view-detail', view === 'detail');
+      document.body.classList.toggle('mview-detail', view === 'detail');
+      document.querySelectorAll('#bottomNav button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+    }
+    document.querySelectorAll('#bottomNav button').forEach(b => b.addEventListener('click', () => setMobileView(b.dataset.view)));
+
+    // ---------- 필터 UI ----------
+    document.querySelectorAll('.chip-group').forEach(group => {
+      group.addEventListener('click', e => {
+        const chip = e.target.closest('.chip'); if (!chip) return;
+        group.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c === chip));
+        filters[group.dataset.group] = chip.dataset.value;
+        applyFilters();
+      });
+    });
+    $('countrySelect').addEventListener('change', e => { filters.country = e.target.value; applyFilters(); });
+    $('sortSelect').addEventListener('change', e => {
+      filters.sort = e.target.value;
+      if (filters.sort === 'near' && !userPos) { requestLocation(); return; }
+      applyFilters();
+    });
+    searchInput.addEventListener('input', applyFilters);
+
+    // ---------- 키보드 ----------
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeLb(); closeBackup(); closeDiaryAll(); closeStamps(); $('aboutModal').classList.remove('show'); if (document.activeElement) document.activeElement.blur(); return; }
+      if (lb && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { stepLb(e.key === 'ArrowLeft' ? -1 : 1); return; }
+      if (lb) return;
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === '/') { e.preventDefault(); searchInput.focus(); }
+      else if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); selectByOffset(1); }
+      else if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); selectByOffset(-1); }
+    });
+
+    // ---------- 딥링크 ----------
+    function spotFromHash() {
+      const m = location.hash.match(/spot=(\d+)/);
+      return m && spotById.has(+m[1]) ? +m[1] : null;
+    }
+    window.addEventListener('hashchange', () => {
+      const id = spotFromHash();
+      if (id && id !== selectedSpotId) {
+        if (!currentList.some(s => s.id === id)) resetFilters();
+        select(id, { scroll: true });
+      }
+    });
+
+    // ---------- 백업 / 복원 ----------
+    const DAY = 86400000;
+    function updateBackupDot() {
+      const last = store.get(KEYS.lastBackup, 0), dirty = store.get(KEYS.dirty, false);
+      $('backupDot').classList.toggle('show', !!dirty && (!last || Date.now() - last > 7 * DAY));
+    }
+    function recordCounts() {
+      return { fav: favorites.length, visited: Object.keys(visited).length, diary: diary.length, photos: photoCount() };
+    }
+    const fmtMB = b => (b / 1048576).toFixed(b < 10485760 ? 1 : 0) + 'MB';
+    async function refreshBackupStat() {
+      const c = recordCounts(), last = store.get(KEYS.lastBackup, 0);
+      let lastTxt = '아직 백업한 적 없음';
+      if (last) { const d = Math.floor((Date.now() - last) / DAY); lastTxt = d === 0 ? '오늘' : d + '일 전'; }
+      let persist = '확인 불가';
+      try { if (navigator.storage && navigator.storage.persisted) persist = (await navigator.storage.persisted()) ? '보호됨 (브라우저가 임의로 지우지 않음)' : '기본 (저장 공간 부족 시 삭제될 수 있음)'; } catch (e) {}
+      let bytes = 0;
+      try { bytes = (await idb.getAll('photos')).reduce((n, p) => n + (p.blob ? p.blob.size : 0), 0); } catch (e) {}
+      $('backupStat').innerHTML = `찜 <b>${c.fav}</b> · 방문 <b>${c.visited}</b> · 일기 <b>${c.diary}</b> · 사진 <b>${c.photos}</b>장${bytes ? ' (' + fmtMB(bytes) + ')' : ''}<br>마지막 백업: ${lastTxt}<br>저장소 상태: ${persist}`;
+      $('photoSize').textContent = bytes ? `(백업 파일 약 ${fmtMB(bytes * 1.37)} 커짐)` : '';
+    }
+    function openBackup() { requestPersist(); refreshBackupStat(); $('backupModal').classList.add('show'); }
+    function closeBackup() { $('backupModal').classList.remove('show'); }
+    $('backupBtn').addEventListener('click', openBackup);
+    $('backupClose').addEventListener('click', closeBackup);
+    $('backupModal').addEventListener('click', e => { if (e.target === $('backupModal')) closeBackup(); });
+
+    function downloadBlob(blob, name) {
+      const url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
+
+    $('exportBtn').addEventListener('click', async () => {
+      const withPhotos = $('withPhotos').checked;
+      const toData = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+      const entries = [];
+      try {
+        for (const e of diary) {
+          const out = { ...e, photos: [] };
+          if (withPhotos) for (const pid of e.photos) { const rec = await idb.get('photos', pid); if (rec) out.photos.push({ id: pid, data: await toData(rec.blob) }); }
+          entries.push(out);
+        }
+      } catch (err) { toast('백업 파일을 만들지 못했어요. 사진 포함을 끄고 다시 시도해 보세요.'); return; }
+      const data = { app: 'movie-spots', version: 2, exportedAt: new Date().toISOString(), favorites, visited, diary: entries, includesPhotos: withPhotos };
+      const name = '성지순례-백업-' + today().replace(/-/g, '') + '.json';
+      const file = new File([JSON.stringify(data, null, 2)], name, { type: 'application/json' });
+      let done = false;
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: '성지순례 백업' });
+          done = true;
+        }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+      if (!done) { downloadBlob(file, name); }
+      store.set(KEYS.lastBackup, Date.now()); store.set(KEYS.dirty, false);
+      updateBackupDot(); refreshBackupStat();
+      toast('백업 파일을 저장했어요. 안전한 곳에 보관하세요.');
+    });
+
+    $('importBtn').addEventListener('click', () => $('importFile').click());
+    $('importFile').addEventListener('change', async e => {
+      const file = e.target.files[0]; e.target.value = '';
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (!data || data.app !== 'movie-spots') throw new Error('format');
+        let addFav = 0, addVis = 0, addNote = 0;
+        (Array.isArray(data.favorites) ? data.favorites : []).forEach(id => {
+          if (spotById.has(id) && !favorites.includes(id)) { favorites.push(id); addFav++; }
+        });
+        Object.entries(isPlainObj(data.visited) ? data.visited : {}).forEach(([k, v]) => {
+          const id = +k; if (!spotById.has(id)) return;
+          const d = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : today();
+          if (!(id in visited)) { visited[id] = d; addVis++; } else if (d < visited[id]) visited[id] = d;
+        });
+        let addPhoto = 0;
+        const dateOk = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+        for (const d of (Array.isArray(data.diary) ? data.diary : [])) {
+          if (!d || typeof d.id !== 'string' || !/^[a-z0-9]{4,40}$/i.test(d.id) || !spotById.has(d.spotId) || typeof d.text !== 'string') continue;
+          const photoIds = [];
+          for (const ph of (Array.isArray(d.photos) ? d.photos : [])) {
+            if (!ph || typeof ph.id !== 'string' || !/^[a-z0-9]{4,40}$/i.test(ph.id) || typeof ph.data !== 'string' || !ph.data.startsWith('data:image/')) continue;
+            if (!(await idb.get('photos', ph.id))) { await idb.put('photos', { id: ph.id, blob: await (await fetch(ph.data)).blob() }); addPhoto++; }
+            photoIds.push(ph.id);
+          }
+          const local = diary.find(x => x.id === d.id);
+          if (!local) {
+            const e = { id: d.id, spotId: d.spotId, date: dateOk(d.date) ? d.date : today(), text: d.text.slice(0, 5000), photos: photoIds, createdAt: +d.createdAt || Date.now(), updatedAt: +d.updatedAt || 0 };
+            await idb.put('entries', e); diary.push(e); addNote++;
+          } else {
+            const m = { ...local, photos: [...new Set([...local.photos, ...photoIds])] };
+            if ((+d.updatedAt || 0) > (local.updatedAt || 0)) { m.text = d.text.slice(0, 5000); if (dateOk(d.date)) m.date = d.date; m.updatedAt = +d.updatedAt; }
+            if (JSON.stringify(m) !== JSON.stringify(local)) { await idb.put('entries', m); diary = diary.map(x => x.id === m.id ? m : x); addNote++; }
+          }
+        }
+        // 예전(v1) 백업의 메모는 일기로 변환
+        for (const [k, v] of Object.entries(isPlainObj(data.notes) ? data.notes : {})) {
+          const id = +k; if (!spotById.has(id) || !v || typeof v.memo !== 'string' || !v.memo) continue;
+          const text = v.memo.slice(0, 5000);
+          if (diary.some(x => x.spotId === id && x.text === text)) continue;
+          const t = +v.updatedAt || Date.now();
+          const e = { id: newId(), spotId: id, date: visited[id] || today(), text, photos: [], createdAt: t, updatedAt: t };
+          await idb.put('entries', e); diary.push(e); addNote++;
+        }
+        saveFav(); saveVisited(); markDirty();
+        updateProgress(); applyFilters(); renderDetail(); updateDiaryBtn(); refreshBackupStat();
+        toast(`불러오기 완료: 찜 +${addFav}, 방문 +${addVis}, 일기 +${addNote}, 사진 +${addPhoto}`);
+      } catch (err) {
+        toast('올바른 백업 파일이 아니에요.');
+      }
+    });
+
+    $('aboutBtn').addEventListener('click', () => { closeBackup(); $('aboutModal').classList.add('show'); });
+    $('routeBtn').addEventListener('click', () => {
+      const stops = currentList.filter(s => favorites.includes(s.id) && COORDS[s.id]).sort((a, b) => a.id - b.id);
+      if (stops.length < 2) { toast('현재 목록에 찜한 성지가 2곳 이상 있어야 루트를 만들 수 있어요.'); return; }
+      const use = stops.slice(0, 11);
+      if (stops.length > use.length) toast(`구글지도 제한으로 앞의 ${use.length}곳만 열어요.`);
+      const pt = s => COORDS[s.id].join(',');
+      const url = 'https://www.google.com/maps/dir/?api=1&origin=' + pt(use[0]) + '&destination=' + pt(use[use.length - 1]) +
+        (use.length > 2 ? '&waypoints=' + use.slice(1, -1).map(pt).join('%7C') : '');
+      window.open(url, '_blank', 'noopener');
+    });
+    $('copyFavBtn').addEventListener('click', async () => {
+      const list = spots.filter(s => favorites.includes(s.id));
+      if (!list.length) { toast('찜한 성지가 없어요.'); return; }
+      const text = '[찜한 성지 ' + list.length + '곳]\n' + list.map(s => `${s.id}. ${s.name} — ${s.work} (${s.loc})\n   ${mapsOpenUrl(s)}`).join('\n');
+      toast((await copyText(text)) ? '찜 목록을 복사했어요.' : '복사에 실패했어요.');
+    });
+    $('csvFavBtn').addEventListener('click', () => {
+      const list = spots.filter(s => favorites.includes(s.id));
+      if (!list.length) { toast('찜한 성지가 없어요.'); return; }
+      const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
+      const rows = [['번호', '장소', '작품', '종류', '위치', '방문여부', '좌표', '구글지도']].concat(list.map(s => [
+        s.id, s.name, s.work, s.cat, s.loc, (s.id in visited) ? '방문 ' + visited[s.id] : '미방문', (COORDS[s.id] || []).join(','), mapsOpenUrl(s)
+      ]));
+      const csv = '﻿' + rows.map(r => r.map(esc).join(',')).join('\r\n');
+      downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), '찜한-성지.csv');
+      toast('CSV 파일을 저장했어요.');
+    });
+
+    // 오래 백업하지 않았다면 한 번 알려주기
+    function remindBackup() {
+      const c = recordCounts();
+      if (c.fav + c.visited + c.diary === 0) return;
+      const last = store.get(KEYS.lastBackup, 0);
+      if (store.get(KEYS.dirty, false) && (!last || Date.now() - last > 30 * DAY)) {
+        setTimeout(() => toast('기록을 백업한 지 오래됐어요. 상단 [백업]에서 저장해 두세요.'), 1500);
+      }
+    }
+
+    // ---------- 시작 ----------
+    buildCountrySelect();
+    const hashId = spotFromHash();
+    if (hashId) selectedSpotId = hashId;
+    updateProgress();
+    updateBackupDot();
+    renderList();
+    select(selectedSpotId, { scroll: !!hashId });
+    if (hashId) setMobileView('detail');
+    loadDiary().catch(() => { diaryReady = true; renderDiary(); toast('일기를 불러오지 못했어요.'); }).then(remindBackup);
+
+    // 앱 설치(PWA)와 오프라인 지원: http(s)로 열었을 때만 동작
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      const hadController = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) $('updateBar').classList.add('show'); });
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+      }).catch(() => {});
+    }
+    $('updateBtn').addEventListener('click', () => location.reload());
+  </script>
+</body>
+</html>
