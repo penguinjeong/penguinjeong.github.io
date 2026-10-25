@@ -271,7 +271,6 @@
     <span class="chip-sep"></span>
     <select id="countrySelect" data-i18n-attr="aria-label:filter.countryAria"></select>
     <select id="sortSelect" data-i18n-attr="aria-label:sort.aria">
-      <option value="id" data-i18n="sort.id"></option>
       <option value="name" data-i18n="sort.name"></option>
       <option value="country" data-i18n="sort.country"></option>
       <option value="fav" data-i18n="sort.fav"></option>
@@ -404,7 +403,7 @@
     const storedDark = store.get(KEYS.dark, null);
     let isDarkMode = storedDark === null ? window.matchMedia('(prefers-color-scheme: dark)').matches : storedDark === true;
 
-    const filters = { status: 'all', cat: 'all', country: 'all', sort: 'id' };
+    const filters = { status: 'all', cat: 'all', country: 'all', sort: 'name' };
     let selectedSpotId = spots[0].id;
     let currentList = [];
 
@@ -560,7 +559,7 @@
           <img src="${spot.thumb}" alt="${S.name}" class="thumbnail" loading="lazy" onerror="handleImgError(this)">
           <div class="card-content">
             <span class="card-cat">${S.cat} | ${S.work}</span>
-            <div class="card-title">${spot.id}. ${S.name}</div>
+            <div class="card-title">${S.name}</div>
             <div class="card-meta">${t('card.loc')}${S.loc}${distText(spot)}</div>
           </div>
           <button class="btn-star ${isFav ? 'active' : ''}" data-id="${spot.id}" aria-label="${t('card.favAria')}">
@@ -881,7 +880,7 @@
       detailSection.innerHTML = `
         <div class="detail-header">
           <span class="detail-badge">${S.cat}</span>${isVisited ? '<span class="detail-badge visit">' + t('detail.visitedBadge') + '</span>' : ''}
-          <div class="detail-title">${spot.id}. ${S.name}</div>
+          <div class="detail-title">${S.name}</div>
           <div class="detail-work">${t('detail.work')}${S.work}</div>
           <div class="detail-loc">${t('detail.loc')}${S.loc}</div>
           ${TIMES[spot.id] ? '<div class="detail-loc">' + t('detail.time') + t('time.' + TIMES[spot.id]) + '</div>' : ''}
@@ -998,7 +997,7 @@
         applyFilters();
       }, () => { toast(t('loc.denied')); resetSort(); }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
     }
-    function resetSort() { filters.sort = 'id'; $('sortSelect').value = 'id'; applyFilters(); }
+    function resetSort() { filters.sort = 'name'; $('sortSelect').value = 'name'; applyFilters(); }
 
     // ---------- 사진 출처 ----------
     function creditHtml(s) {
@@ -1207,7 +1206,7 @@
     $('copyFavBtn').addEventListener('click', async () => {
       const list = spots.filter(s => favorites.includes(s.id));
       if (!list.length) { toast(t('trip.noFav')); return; }
-      const text = t('trip.copyHead', { n: list.length }) + '\n' + list.map(s => { const S = sp(s); return `${s.id}. ${S.name} — ${S.work} (${S.loc})\n   ${mapsOpenUrl(s)}`; }).join('\n');
+      const text = t('trip.copyHead', { n: list.length }) + '\n' + list.map(s => { const S = sp(s); return `${S.name} — ${S.work} (${S.loc})\n   ${mapsOpenUrl(s)}`; }).join('\n');
       toast((await copyText(text)) ? t('trip.copied') : t('toast.copyFail'));
     });
     $('csvFavBtn').addEventListener('click', () => {
@@ -1215,7 +1214,7 @@
       if (!list.length) { toast(t('trip.noFav')); return; }
       const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
       const rows = [t('trip.csvHead').split(',')].concat(list.map(s => { const S = sp(s); return [
-        s.id, S.name, S.work, S.cat, S.loc, (s.id in visited) ? t('trip.csvVisited', { date: visited[s.id] }) : t('trip.csvNot'), (COORDS[s.id] || []).join(','), mapsOpenUrl(s)
+        S.name, S.work, S.cat, S.loc, (s.id in visited) ? t('trip.csvVisited', { date: visited[s.id] }) : t('trip.csvNot'), (COORDS[s.id] || []).join(','), mapsOpenUrl(s)
       ]; }));
       const csv = '﻿' + rows.map(r => r.map(esc).join(',')).join('\r\n');
       downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), t('trip.csvFile'));
@@ -1247,6 +1246,7 @@
     buildCountrySelect();
     const hashId = spotFromHash();
     if (hashId) selectedSpotId = hashId;
+    else { const first = getFiltered()[0]; if (first) selectedSpotId = first.id; }
     updateProgress();
     updateBackupDot();
     renderList();
