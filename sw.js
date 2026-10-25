@@ -1,6 +1,6 @@
 // 성지순례 앱 서비스 워커: 앱 파일과 본 이미지를 저장해 오프라인에서도 열리게 한다.
 // movie.html 등을 수정해서 올릴 때마다 VERSION 숫자를 올려야 폰에 새 버전이 반영된다.
-const VERSION = 'spots-v4';
+const VERSION = 'spots-v5';
 const CORE = ['./movie.html', './spots.js', './spots.en.js', './i18n.js', './manifest.json', './icon-192.png', './icon-512.png', './privacy-policy.html'];
 const IMG_CACHE = 'spots-img-v1';
 const IMG_LIMIT = 250;
