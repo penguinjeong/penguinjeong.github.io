@@ -966,9 +966,11 @@
     function syncMap() {
       const spot = spotById.get(selectedSpotId);
       if (!spot) return;
-      if (mapFrame.dataset.q === spot.query) return;
-      mapFrame.dataset.q = spot.query;
-      mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(spot.query)}&z=15&output=embed`;
+      // 지도 글자도 앱 언어를 따르도록 hl(표시 언어)을 함께 넘긴다
+      const key = spot.query + '|' + lang;
+      if (mapFrame.dataset.q === key) return;
+      mapFrame.dataset.q = key;
+      mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(spot.query)}&z=15&hl=${lang}&output=embed`;
     }
     function updateOnlineState() { $('mapOffline').classList.toggle('show', !navigator.onLine); }
     window.addEventListener('online', () => { updateOnlineState(); const s = spotById.get(selectedSpotId); if (s) { mapFrame.dataset.q = ''; syncMap(); } });
@@ -1234,7 +1236,7 @@
     // ---------- 언어 전환 ----------
     function setLang(next) {
       lang = next; store.set('spotLang', lang);
-      applyStatic(); buildCountrySelect(); updateProgress(); renderList(); renderDetail(); renderDiary();
+      applyStatic(); buildCountrySelect(); updateProgress(); renderList(); renderDetail(); renderDiary(); syncMap();
       if ($('backupModal').classList.contains('show')) refreshBackupStat();
       if ($('diaryModal').classList.contains('show')) openDiaryAll();
       if ($('stampModal').classList.contains('show')) openStamps();
