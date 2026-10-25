@@ -129,7 +129,6 @@
     .detail-img { width: 100%; height: 190px; object-fit: cover; border-radius: 10px; background-color: #333; display: block; }
     .photo-credit { font-size: 0.68rem; color: var(--text-sub); margin-top: 4px; line-height: 1.35; word-break: break-word; }
     .photo-credit a { color: inherit; }
-    .map-open { position: absolute; left: 8px; bottom: 8px; z-index: 2; background: rgba(255,255,255,0.95); color: #1a73e8; padding: 0.35rem 0.7rem; border-radius: 16px; font-size: 0.78rem; font-weight: 700; text-decoration: none; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
     .map-offline { position: absolute; inset: 0; z-index: 1; display: none; align-items: center; justify-content: center; text-align: center; padding: 1rem; background: var(--map-bg); color: var(--text-sub); font-size: 0.9rem; line-height: 1.6; }
     .map-offline.show { display: flex; }
     .stamp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; margin-top: 12px; }
@@ -287,7 +286,6 @@
       <div class="map-container" id="mapContainer">
         <iframe id="mapFrame" data-i18n-attr="title:map.title"></iframe>
         <div class="map-offline" id="mapOffline" data-i18n-html="map.offline"></div>
-        <a class="map-open" id="mapOpenLink" target="_blank" rel="noopener" data-i18n="map.open"></a>
       </div>
       <div class="detail-section" id="detailSection"></div>
     </div>
@@ -891,6 +889,7 @@
             <button class="act ${isFav ? 'on-fav' : ''}" data-act="fav">${isFav ? t('detail.favOn') : t('detail.favOff')}</button>
             <button class="act ${isVisited ? 'on-visit' : ''}" data-act="visit">${isVisited ? t('detail.visitOn') : t('detail.visitOff')}</button>
             <a class="act" href="${mapsDirUrl(spot)}" target="_blank" rel="noopener">${t('detail.dir')}</a>
+            <a class="act" href="${mapsOpenUrl(spot)}" target="_blank" rel="noopener">${t('detail.openMap')}</a>
             ${SITES[spot.id] ? '<a class="act" href="' + esc(SITES[spot.id]) + '" target="_blank" rel="noopener">' + t('detail.site') + '</a>' : ''}
             <button class="act" data-act="share">${t('detail.share')}</button>
           </div>
@@ -968,7 +967,6 @@
     function syncMap() {
       const spot = spotById.get(selectedSpotId);
       if (!spot) return;
-      $('mapOpenLink').href = mapsOpenUrl(spot);
       if (mapFrame.dataset.q === spot.query) return;
       mapFrame.dataset.q = spot.query;
       mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(spot.query)}&z=15&output=embed`;
