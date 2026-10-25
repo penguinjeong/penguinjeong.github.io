@@ -891,7 +891,6 @@
             <button class="act ${isFav ? 'on-fav' : ''}" data-act="fav">${isFav ? t('detail.favOn') : t('detail.favOff')}</button>
             <button class="act ${isVisited ? 'on-visit' : ''}" data-act="visit">${isVisited ? t('detail.visitOn') : t('detail.visitOff')}</button>
             <a class="act" href="${mapsDirUrl(spot)}" target="_blank" rel="noopener">${t('detail.dir')}</a>
-            <a class="act" href="${mapsOpenUrl(spot)}" target="_blank" rel="noopener">${t('detail.openMap')}</a>
             ${SITES[spot.id] ? '<a class="act" href="' + esc(SITES[spot.id]) + '" target="_blank" rel="noopener">' + t('detail.site') + '</a>' : ''}
             <button class="act" data-act="share">${t('detail.share')}</button>
           </div>
